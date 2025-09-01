@@ -1,5 +1,5 @@
 import { type WorkBook, utils } from 'xlsx';
-import type { Activity, Honor } from './types';
+import type { Activity, Context, Honor } from './types';
 
 const parseCAFrWorkbook = async (
 	wb: WorkBook
@@ -23,6 +23,22 @@ const parseCAFrWorkbook = async (
 	return { activities, honors };
 };
 
+const parseCATrWorkbook = async (
+	wb: WorkBook
+): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+	// TODO
+	console.log(wb);
+	return { activities: [], honors: [] };
+};
+
+const parseUCWorkbook = async (
+	wb: WorkBook
+): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+	// TODO
+	console.log(wb);
+	return { activities: [], honors: [] };
+};
+
 export const newActivity = (order: number): Activity => {
 	return {
 		order,
@@ -32,7 +48,7 @@ export const newActivity = (order: number): Activity => {
 		type: '',
 		when: [],
 		position: '',
-		organization: '',
+		organization: 'TODO',
 		description: '',
 		comments: ''
 	};
@@ -42,16 +58,16 @@ export const newHonor = (order: number): Honor => {
 	return {
 		order,
 		grade_level: [],
-		title: '',
+		title: 'TODO',
 		level_of_recognition: [],
 		comments: ''
 	};
 };
 
-export const APPLICATION_SYSTEMS = {
+export const APPLICATION_SYSTEMS: Record<string, Context> = {
 	CA_FRESHMAN: {
-		id: 'caf',
-		name: 'Common App Freshman',
+		id: 'CA_FRESHMAN',
+		name: 'Common App First-Year',
 		fileFilter: {
 			name: 'CA Freshman List',
 			extensions: ['caf.xlsx', 'caf.xls']
@@ -65,7 +81,7 @@ export const APPLICATION_SYSTEMS = {
 		parser: parseCAFrWorkbook
 	},
 	CA_TRANSFER: {
-		id: 'cat',
+		id: 'CA_TRANSFER',
 		name: 'Common App Transfer',
 		fileFilter: {
 			name: 'CA Transfer List',
@@ -76,10 +92,11 @@ export const APPLICATION_SYSTEMS = {
 		},
 		activities: {
 			maxEntries: -1
-		}
+		},
+		parser: parseCATrWorkbook
 	},
 	UC: {
-		id: 'uc',
+		id: 'UC',
 		name: 'University of California',
 		fileFilter: {
 			name: 'UC List',
@@ -87,6 +104,7 @@ export const APPLICATION_SYSTEMS = {
 		},
 		activities: {
 			maxEntries: 20
-		}
+		},
+		parser: parseUCWorkbook
 	}
 };

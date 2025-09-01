@@ -1,3 +1,5 @@
+import type { WorkBook } from 'xlsx';
+
 export type Activity = {
 	order: number;
 	grade_level: (string | number)[];
@@ -17,4 +19,20 @@ export type Honor = {
 	title: string;
 	level_of_recognition: string[];
 	comments: string;
+};
+
+export type Context = {
+	id: string;
+	name: string;
+	fileFilter: {
+		name: string;
+		extensions: string[];
+	};
+	honors?: {
+		maxEntries: number;
+	};
+	activities: {
+		maxEntries: number;
+	};
+	parser: (wb: WorkBook) => Promise<{ activities: Activity[]; honors: Honor[] }>;
 };
