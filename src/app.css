@@ -109,3 +109,41 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+/* WebKit (Chrome, Edge, Safari) scrollbar styling */
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 4px;
+	margin: 2px;
+	/* Creates gap around track */
+}
+
+::-webkit-scrollbar-thumb {
+	background: transparent;
+	border-radius: 4px;
+	/* Makes thumb appear thinner */
+	border: 2px solid transparent;
+}
+
+:hover::-webkit-scrollbar-thumb {
+	background: rgba(113, 113, 122, 0.5);
+	border-color: white;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(113, 113, 122, 1);
+}
+
+::-webkit-scrollbar-track:hover {
+	background-color: rgb(244, 244, 245);
+}
+
+* {
+	font-family: 'Geist', Roboto, 'Noto Sans SC', 'Twemoji Country Flags', sans-serif;
+}

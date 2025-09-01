@@ -24,3 +24,5 @@ log = "0.4"
 tauri = { version = "2.6.2", features = [] }
 tauri-plugin-log = "2"
 thiserror = "2.0.12"
+tauri-plugin-dialog = "2.3.3"
+tauri-plugin-fs = "2.4.2"

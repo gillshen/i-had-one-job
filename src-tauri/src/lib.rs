@@ -15,6 +15,9 @@ pub fn run() {
             }
             Ok(())
         })
+        // initialize dialog and fs plugins
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![read, write])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
