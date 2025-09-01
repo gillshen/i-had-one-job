@@ -1,5 +1,6 @@
 import { type WorkBook, utils } from 'xlsx';
-import type { Activity, Context, Honor } from './types';
+import type { Activity, RawActivity, Honor, Context } from './types';
+import { orderGradeLevels, orderTimings } from './utils/sorting';
 
 const parseCAFrWorkbook = async (
 	wb: WorkBook
@@ -10,7 +11,12 @@ const parseCAFrWorkbook = async (
 		throw new Error('No sheet named "Activities" found.');
 	}
 	const activitiesSheet = wb.Sheets[activitiesSheetName];
-	const activities = utils.sheet_to_json(activitiesSheet) as Activity[];
+	const rawActivities = utils.sheet_to_json(activitiesSheet) as RawActivity[];
+	const activities = rawActivities.map((a) => ({
+		...a,
+		grade_level: new Set(a.grade_level?.split(/,\s*|\s+/) ?? []),
+		when: new Set(a.when.split(/,\s*/).map((timing: string) => timing.toLowerCase()) ?? [])
+	}));
 
 	// find the sheet named "Honors" (case insensitive); otherwise make `honors` an empty array
 	let honors: Honor[] = [];
@@ -21,6 +27,19 @@ const parseCAFrWorkbook = async (
 	}
 
 	return { activities, honors };
+};
+
+export const serializeCAFrWorkbook = (data: {
+	activities: Activity[];
+	honors: Honor[];
+}): { activities: RawActivity[]; honors: Honor[] } => {
+	const rawActivities = data.activities.map((a) => ({
+		...a,
+		grade_level: Array.from(a.grade_level).sort(orderGradeLevels).join(', '),
+		when: Array.from(a.when).sort(orderTimings).join(', ')
+	})) as RawActivity[];
+	console.table(rawActivities);
+	return { activities: rawActivities, honors: data.honors };
 };
 
 const parseCATrWorkbook = async (
@@ -42,12 +61,12 @@ const parseUCWorkbook = async (
 export const newActivity = (order: number): Activity => {
 	return {
 		order,
-		grade_level: [],
+		grade_level: new Set(),
 		hours_per_week: null,
 		weeks_per_year: null,
 		type: '',
-		when: [],
-		position: '',
+		when: new Set(),
+		position: 'TODO',
 		organization: 'TODO',
 		description: '',
 		comments: ''

@@ -13,7 +13,7 @@
     "windows": [
       {
         "title": "Activity List Editor",
-        "width": 1100,
+        "width": 1200,
         "height": 700,
         "resizable": true,
         "fullscreen": false

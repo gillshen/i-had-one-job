@@ -5,14 +5,14 @@
 	import * as Resizable from '$lib/components/ui/resizable/';
 	import * as Card from '$lib/components/ui/card/';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 
+	// global state
 	import { gs } from '$lib/commands.svelte';
-	// const gs = new GlobalState();
+
+	import CAFrActivityCard from '$lib/components/CAFrActivityCard.svelte';
+	import CaFrActivityForm from '$lib/components/CAFrActivityForm.svelte';
 
 	let deleteDialogOpen = $state(false);
 
@@ -60,7 +60,7 @@
 
 		const sysMenuItemCAF = await CheckMenuItem.new({
 			id: 'caf_check',
-			text: 'CA Freshman',
+			text: 'CA First-Year',
 			action: () => {
 				gs.context = 'CA_FRESHMAN';
 				sysMenuItemCAF.setChecked(true);
@@ -222,7 +222,7 @@
 </script>
 
 <Resizable.PaneGroup direction="horizontal" class="min-h-screen w-full rounded-xl">
-	<Resizable.Pane defaultSize={58} minSize={1}>
+	<Resizable.Pane defaultSize={50} minSize={1}>
 		<!-- a list of activities displayed by cards -->
 		<div class="flex max-h-screen flex-col gap-4 overflow-auto p-6">
 			{#if gs.honors.length}
@@ -243,53 +243,20 @@
 				<h2 class="px-6 text-xl font-bold text-cyan-800">Activities</h2>
 			{/if}
 			{#each gs.activities as activity}
-				<Card.Root class="border-transparent shadow-none hover:border-indigo-200">
-					<Card.Header>
-						<Card.Title class="font-bold text-gray-800">{activity.organization}</Card.Title>
-					</Card.Header>
-					<Card.Content class="text-sm text-gray-600">{activity.description}</Card.Content>
-				</Card.Root>
+				<CAFrActivityCard {activity} />
 			{/each}
 		</div>
 	</Resizable.Pane>
 
 	<Resizable.Handle />
 
-	<Resizable.Pane defaultSize={42} class="bg-zinc-50" minSize={1}>
+	<Resizable.Pane defaultSize={50} class="bg-zinc-50" minSize={1}>
 		<!-- editor -->
 		<div class="flex max-h-screen flex-col gap-6 py-6">
 			<div class="px-8 font-semibold">{gs.context.name}</div>
 			<div class="px-8 text-sm text-zinc-500">File: {gs.filePath}</div>
 			{#if gs.activities.length}
-				<form class="flex flex-grow flex-col gap-4 overflow-auto px-8 py-4">
-					<div class="flex flex-col gap-1.5">
-						<Label for="title" class="text-sm font-medium">Title</Label>
-						<Input
-							id="title"
-							class="text-sm"
-							bind:value={gs.activities[0].organization}
-							spellcheck="true"
-						/>
-					</div>
-					<div class="flex flex-col gap-1.5">
-						<Label for="description" class="text-sm font-medium">Description</Label>
-						<Textarea
-							id="description"
-							class="bg-white text-sm"
-							bind:value={gs.activities[0].description}
-							spellcheck="true"
-						/>
-					</div>
-					<div class="flex flex-col gap-1.5">
-						<Label for="comments" class="text-sm font-medium">Comments</Label>
-						<Textarea
-							id="comments"
-							class="bg-white text-sm"
-							bind:value={gs.activities[0].comments}
-							spellcheck="true"
-						/>
-					</div>
-				</form>
+				<CaFrActivityForm bind:activity={gs.activities[0]} />
 			{/if}
 		</div>
 	</Resizable.Pane>

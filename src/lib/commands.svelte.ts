@@ -1,5 +1,10 @@
 import type { Context, Activity, Honor } from './types';
-import { APPLICATION_SYSTEMS, newActivity, newHonor } from './applicationSystems';
+import {
+	APPLICATION_SYSTEMS,
+	newActivity,
+	newHonor,
+	serializeCAFrWorkbook
+} from './applicationSystems';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 
 class GlobalState {
@@ -68,7 +73,10 @@ class GlobalState {
 			await this.saveAs();
 			return;
 		}
-		await saveFile(this.filePath, { activities: this.activities, honors: this.honors });
+		await saveFile(
+			this.filePath,
+			serializeCAFrWorkbook({ activities: this.activities, honors: this.honors })
+		);
 	}
 
 	async saveAs() {

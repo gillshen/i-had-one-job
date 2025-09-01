@@ -147,3 +147,13 @@
 * {
 	font-family: 'Geist', Roboto, 'Noto Sans SC', 'Twemoji Country Flags', sans-serif;
 }
+
+input,
+select,
+textarea {
+	background-color: white;
+}
+
+label {
+	line-height: 135%;
+}

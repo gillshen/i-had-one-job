@@ -2,20 +2,25 @@ import type { WorkBook } from 'xlsx';
 
 export type Activity = {
 	order: number;
-	grade_level: (string | number)[];
+	grade_level: Set<string>;
 	hours_per_week: number | null;
 	weeks_per_year: number | null;
 	type: string;
-	when: string[];
+	when: Set<string>;
 	position: string;
 	organization: string;
 	description: string;
 	comments: string;
 };
 
+export type RawActivity = Omit<Activity, 'grade_level' | 'when'> & {
+	grade_level: 'string';
+	when: 'string';
+};
+
 export type Honor = {
 	order: number;
-	grade_level: (string | number)[];
+	grade_level: string[];
 	title: string;
 	level_of_recognition: string[];
 	comments: string;

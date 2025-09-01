@@ -2,7 +2,7 @@ import { open, save } from '@tauri-apps/plugin-dialog';
 import { readFile, writeFile } from '@tauri-apps/plugin-fs';
 import { type WorkBook, read, write, utils } from 'xlsx';
 
-import type { Activity, Honor } from '$lib/types';
+import type { Activity, RawActivity, Honor } from '$lib/types';
 
 export const getOpenFilePath = async (filter: {
 	name: string;
@@ -40,7 +40,7 @@ export const openFile = async (
 
 export const saveFile = async (
 	filePath: string,
-	data: { activities: Activity[]; honors: Honor[] }
+	data: { activities: RawActivity[]; honors: Honor[] }
 ): Promise<void> => {
 	// Write `Data` to an Excel file with two sheets, "Activities" and "Honors"
 	const { activities, honors } = data;
