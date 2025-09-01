@@ -13,3 +13,11 @@ export const orderTimings = (t1: string, t2: string): number => {
 	const index2 = timingOrder.indexOf(t2);
 	return index1 - index2;
 };
+
+const recognitionOrder = ['school', 'state/regional', 'national', 'international'];
+
+export const orderRecognitions = (rec1: string, rec2: string): number => {
+	const index1 = recognitionOrder.indexOf(rec1);
+	const index2 = recognitionOrder.indexOf(rec2);
+	return index1 - index2;
+};

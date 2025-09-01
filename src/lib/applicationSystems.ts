@@ -1,6 +1,6 @@
 import { type WorkBook, utils } from 'xlsx';
-import type { Activity, RawActivity, Honor, Context } from './types';
-import { orderGradeLevels, orderTimings } from './utils/sorting';
+import type { Activity, RawActivity, Honor, Context, RawHonor } from './types';
+import { orderGradeLevels, orderRecognitions, orderTimings } from './utils/sorting';
 
 const parseCAFrWorkbook = async (
 	wb: WorkBook
@@ -14,7 +14,7 @@ const parseCAFrWorkbook = async (
 	const rawActivities = utils.sheet_to_json(activitiesSheet) as RawActivity[];
 	const activities = rawActivities.map((a) => ({
 		...a,
-		grade_level: new Set(a.grade_level?.split(/,\s*|\s+/) ?? []),
+		grade_level: new Set(a.grade_level.toString()?.split(/,\s*|\s+/) ?? []),
 		when: new Set(a.when.split(/,\s*/).map((timing: string) => timing.toLowerCase()) ?? [])
 	}));
 
@@ -23,7 +23,14 @@ const parseCAFrWorkbook = async (
 	const honorsSheetName = wb.SheetNames.find((name) => name.toLowerCase() === 'honors');
 	if (honorsSheetName) {
 		const honorsSheet = wb.Sheets[honorsSheetName];
-		honors = utils.sheet_to_json(honorsSheet);
+		const rawHonors = utils.sheet_to_json(honorsSheet) as RawHonor[];
+		honors = rawHonors.map((h) => ({
+			...h,
+			grade_level: new Set(h.grade_level.toString()?.split(/,\s*|\s+/) ?? []),
+			level_of_recognition: new Set(
+				h.level_of_recognition.split(/,\s*/).map((lvl: string) => lvl.toLowerCase()) ?? []
+			)
+		}));
 	}
 
 	return { activities, honors };
@@ -32,14 +39,22 @@ const parseCAFrWorkbook = async (
 export const serializeCAFrWorkbook = (data: {
 	activities: Activity[];
 	honors: Honor[];
-}): { activities: RawActivity[]; honors: Honor[] } => {
+}): { activities: RawActivity[]; honors: RawHonor[] } => {
 	const rawActivities = data.activities.map((a) => ({
 		...a,
 		grade_level: Array.from(a.grade_level).sort(orderGradeLevels).join(', '),
 		when: Array.from(a.when).sort(orderTimings).join(', ')
 	})) as RawActivity[];
 	console.table(rawActivities);
-	return { activities: rawActivities, honors: data.honors };
+
+	const rawHonors = data.honors.map((h) => ({
+		...h,
+		grade_level: Array.from(h.grade_level).sort(orderGradeLevels).join(', '),
+		level_of_recognition: Array.from(h.level_of_recognition).sort(orderRecognitions).join(', ')
+	}));
+	console.table(rawHonors);
+
+	return { activities: rawActivities, honors: rawHonors };
 };
 
 const parseCATrWorkbook = async (
@@ -76,9 +91,9 @@ export const newActivity = (order: number): Activity => {
 export const newHonor = (order: number): Honor => {
 	return {
 		order,
-		grade_level: [],
+		grade_level: new Set(),
 		title: 'TODO',
-		level_of_recognition: [],
+		level_of_recognition: new Set(),
 		comments: ''
 	};
 };

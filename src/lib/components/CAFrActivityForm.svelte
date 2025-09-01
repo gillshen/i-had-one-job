@@ -159,14 +159,4 @@
 		<Label for="comments">Comments</Label>
 		<Textarea id="comments" bind:value={activity.comments} spellcheck="true" />
 	</div>
-
-	<pre class="bg-amber-200 font-mono">{JSON.stringify(
-			{
-				...activity,
-				grade_level: Array.from(activity.grade_level),
-				when: Array.from(activity.when)
-			},
-			null,
-			2
-		)}</pre>
 </form>

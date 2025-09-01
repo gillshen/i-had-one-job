@@ -12,6 +12,7 @@ class GlobalState {
 	private _activities: Activity[] = $state([]);
 	private _honors: Honor[] = $state([]);
 	private _filePath: string = $state('');
+	private _deleteDialog: boolean = $state(false);
 
 	get context(): Context {
 		return this._context;
@@ -43,6 +44,14 @@ class GlobalState {
 
 	set filePath(value: string) {
 		this._filePath = value;
+	}
+
+	get deleteDialog() {
+		return this._deleteDialog;
+	}
+
+	set deleteDialog(value: boolean) {
+		this._deleteDialog = value;
 	}
 
 	new() {

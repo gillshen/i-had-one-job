@@ -13,6 +13,7 @@
     "windows": [
       {
         "title": "Activity List Editor",
+        "label": "main",
         "width": 1200,
         "height": 700,
         "resizable": true,

@@ -14,16 +14,21 @@ export type Activity = {
 };
 
 export type RawActivity = Omit<Activity, 'grade_level' | 'when'> & {
-	grade_level: 'string';
-	when: 'string';
+	grade_level: string;
+	when: string;
 };
 
 export type Honor = {
 	order: number;
-	grade_level: string[];
+	grade_level: Set<string>;
 	title: string;
-	level_of_recognition: string[];
+	level_of_recognition: Set<string>;
 	comments: string;
+};
+
+export type RawHonor = Omit<Honor, 'grade_level' | 'level_of_recognition'> & {
+	grade_level: string;
+	level_of_recognition: string;
 };
 
 export type Context = {

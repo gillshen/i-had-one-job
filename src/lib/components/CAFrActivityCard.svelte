@@ -33,7 +33,9 @@
 	};
 </script>
 
-<Card.Root class="gap-2 border-transparent text-sm shadow-none hover:border-indigo-200">
+<Card.Root
+	class="cursor-default gap-2 border-transparent text-sm shadow-none hover:border-indigo-100"
+>
 	<Card.Header class="mb-0">
 		<Card.Title class="text-xl font-semibold">{activity.order}. {activity.type}</Card.Title>
 	</Card.Header>
@@ -47,6 +49,9 @@
 			<div class="col-span-2 flex flex-col">
 				<div class="mb-1 font-semibold">{activity.position}, {activity.organization}</div>
 				<div>{activity.description}</div>
+				{#if activity.comments}
+					<div class="mt-2 text-red-600">{activity.comments}</div>
+				{/if}
 			</div>
 		</div>
 	</Card.Content>
