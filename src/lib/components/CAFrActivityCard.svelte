@@ -3,7 +3,11 @@
 	import type { Activity } from '$lib/types';
 	import { orderGradeLevels, orderTimings } from '$lib/utils/sorting';
 
-	let { activity } = $props<{ activity: Activity }>();
+	let {
+		activity,
+		isSelected: selected,
+		onclick
+	} = $props<{ activity: Activity; isSelected: boolean; onclick: () => void }>();
 
 	const formatGradeLevels = (gradeLevels: Set<string>): string => {
 		const arr = Array.from(gradeLevels).sort(orderGradeLevels);
@@ -33,9 +37,7 @@
 	};
 </script>
 
-<Card.Root
-	class="cursor-default gap-2 border-transparent text-sm shadow-none hover:border-indigo-100"
->
+<Card.Root class={['card cursor-default gap-2 text-sm shadow-none', { selected }]} {onclick}>
 	<Card.Header class="mb-0">
 		<Card.Title class="text-xl font-semibold">{activity.order}. {activity.type}</Card.Title>
 	</Card.Header>

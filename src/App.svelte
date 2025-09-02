@@ -31,9 +31,13 @@
 		<div class="flex max-h-screen flex-col overflow-auto p-6">
 			{#if gs.honors.length}
 				<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Honors</h2>
-				<div class="flex flex-col">
-					{#each gs.honors as honor}
-						<CaFrHonorCard {honor} />
+				<div class="flex flex-col gap-1">
+					{#each gs.honors as honor, index}
+						<CaFrHonorCard
+							{honor}
+							isSelected={gs.isSelected({ type: 'honor', index })}
+							onclick={() => gs.selectHonor(index)}
+						/>
 					{/each}
 				</div>
 			{/if}
@@ -42,9 +46,13 @@
 			{/if}
 			{#if gs.activities.length && gs.context.id !== 'UC'}
 				<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Activities</h2>
-				<div class="flex flex-col">
-					{#each gs.activities as activity}
-						<CAFrActivityCard {activity} />
+				<div class="flex flex-col gap-1">
+					{#each gs.activities as activity, index}
+						<CAFrActivityCard
+							{activity}
+							isSelected={gs.isSelected({ type: 'activity', index })}
+							onclick={() => gs.selectActivity(index)}
+						/>
 					{/each}
 				</div>
 			{/if}
@@ -56,12 +64,14 @@
 	<Resizable.Pane defaultSize={50} class="bg-zinc-50" minSize={1}>
 		<!-- editor -->
 		<div class="flex max-h-screen flex-col gap-6 py-6">
-			<div class="px-8 font-semibold">{gs.context.name}</div>
-			{#if gs.honors.length}
-				<CaFrHonorForm bind:honor={gs.honors[gs.honors.length - 1]} />
-			{/if}
-			{#if gs.activities.length}
-				<CaFrActivityForm bind:activity={gs.activities[gs.activities.length - 1]} />
+			<div class="px-8 font-semibold">
+				{gs.context.name} | {gs.selection?.type ?? ''}
+				{gs.selection?.index ?? ''}
+			</div>
+			{#if gs.selection?.type === 'honor'}
+				<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
+			{:else if gs.selection?.type === 'activity'}
+				<CaFrActivityForm bind:activity={gs.activities[gs.selection.index]} />
 			{/if}
 		</div>
 	</Resizable.Pane>

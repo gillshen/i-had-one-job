@@ -14,8 +14,18 @@ const parseCAFrWorkbook = async (
 	const rawActivities = utils.sheet_to_json(activitiesSheet) as RawActivity[];
 	const activities = rawActivities.map((a) => ({
 		...a,
-		grade_level: new Set(a.grade_level.toString()?.split(/,\s*|\s+/) ?? []),
-		when: new Set(a.when.split(/,\s*/).map((timing: string) => timing.toLowerCase()) ?? [])
+		grade_level: new Set(
+			a.grade_level
+				.toString()
+				?.split(/,\s*|\s+/)
+				.filter(Boolean) ?? []
+		),
+		when: new Set(
+			a.when
+				.split(/,\s*/)
+				.filter(Boolean)
+				.map((timing: string) => timing.toLowerCase()) ?? []
+		)
 	}));
 
 	// find the sheet named "Honors" (case insensitive); otherwise make `honors` an empty array
@@ -26,9 +36,17 @@ const parseCAFrWorkbook = async (
 		const rawHonors = utils.sheet_to_json(honorsSheet) as RawHonor[];
 		honors = rawHonors.map((h) => ({
 			...h,
-			grade_level: new Set(h.grade_level.toString()?.split(/,\s*|\s+/) ?? []),
+			grade_level: new Set(
+				h.grade_level
+					.toString()
+					?.split(/,\s*|\s+/)
+					.filter(Boolean) ?? []
+			),
 			level_of_recognition: new Set(
-				h.level_of_recognition.split(/,\s*/).map((lvl: string) => lvl.toLowerCase()) ?? []
+				h.level_of_recognition
+					.split(/,\s*/)
+					.filter(Boolean)
+					.map((lvl: string) => lvl.toLowerCase()) ?? []
 			)
 		}));
 	}

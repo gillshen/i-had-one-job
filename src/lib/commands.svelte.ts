@@ -7,11 +7,19 @@ import {
 } from './applicationSystems';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 
+type ItemType = 'activity' | 'honor';
+
+type Selection = {
+	type: ItemType;
+	index: number;
+};
+
 class GlobalState {
 	private _context: Context = $state(APPLICATION_SYSTEMS['CA_FRESHMAN']);
 	private _activities: Activity[] = $state([]);
 	private _honors: Honor[] = $state([]);
 	private _filePath: string = $state('');
+	private _selection: Selection | null = $state(null);
 	private _deleteDialog: boolean = $state(false);
 
 	get context(): Context {
@@ -46,6 +54,14 @@ class GlobalState {
 		this._filePath = value;
 	}
 
+	get selection() {
+		return this._selection;
+	}
+
+	set selection(value: Selection | null) {
+		this._selection = value;
+	}
+
 	get deleteDialog() {
 		return this._deleteDialog;
 	}
@@ -54,12 +70,17 @@ class GlobalState {
 		this._deleteDialog = value;
 	}
 
+	isSelected(test: Selection | null) {
+		return this.selection?.type === test?.type && this.selection?.index === test?.index;
+	}
+
 	new() {
 		// TODO check if there is unsaved data
 		// if yes, prompt the user to save
 		this.filePath = '';
 		this.activities = [];
 		this.honors = [];
+		this.selection = null;
 	}
 
 	async open() {
@@ -70,6 +91,7 @@ class GlobalState {
 			this.activities = data.activities;
 			this.honors = data.honors;
 			this.filePath = filePath;
+			this.selection = null;
 		} catch (e) {
 			// TODO handle error properly
 			this.filePath = `error: ${e}`;
@@ -102,6 +124,7 @@ class GlobalState {
 			// TODO vary with context?
 			newActivity(this.activities.length + 1)
 		];
+		this.selection = { type: 'activity', index: this.activities.length - 1 };
 	}
 
 	newHonor() {
@@ -110,29 +133,81 @@ class GlobalState {
 			// TODO vary with context?
 			newHonor(this.honors.length + 1)
 		];
+		this.selection = { type: 'honor', index: this.honors.length - 1 };
 	}
 
 	duplicateItem() {
-		alert('Duplicate Activity');
+		if (!this.selection) return;
+		alert('To be implemented');
 	}
 
-	gotoNext() {
-		alert('Next');
+	selectActivity(index: number) {
+		// select the indexd activity or the first/last activity if index out of bound
+		if (!this.activities.length) return;
+		const safeIndex = Math.max(0, Math.min(index, this.activities.length - 1));
+		this.selection = { type: 'activity', index: safeIndex };
 	}
 
-	gotoPrevious() {
-		alert('Previous');
+	selectHonor(index: number) {
+		// select the indexd honor or the first/last honor if index out of bound
+		if (!this.honors.length) return;
+		const safeIndex = Math.max(0, Math.min(index, this.honors.length - 1));
+		this.selection = { type: 'honor', index: safeIndex };
+		console.log(this.selection);
+	}
+
+	selectNext() {
+		if (!this.selection) {
+			// select the first honor if present, or the first activity if present
+			if (this.honors.length) {
+				this.selectHonor(0);
+			} else {
+				this.selectActivity(0);
+			}
+		} else if (this.selection.type === 'activity') {
+			// if the current item is an activity, select the next activity if present
+			this.selectActivity(this.selection.index + 1);
+		} else if (this.selection.index < this.honors.length - 1) {
+			// if the current item is an honor, select the next honor if present;
+			this.selectHonor(this.selection.index + 1);
+		} else {
+			// if not, select the first activity if present
+			this.selectActivity(0);
+		}
+	}
+
+	selectPrevious() {
+		if (!this.selection) {
+			// select the last activity if present, of the last honor if present
+			if (this.activities.length) {
+				this.selectActivity(this.activities.length - 1);
+			} else {
+				this.selectHonor(this.honors.length - 1);
+			}
+		} else if (this.selection.type === 'honor') {
+			// if the current item is an honor, select the previous honor if present
+			this.selectHonor(this.selection.index - 1);
+		} else if (this.selection.index) {
+			// if the current item is an activity, select the pervious activity if present;
+			this.selectActivity(this.selection.index - 1);
+		} else {
+			// if not, select the last honor if present
+			this.selectHonor(this.honors.length - 1);
+		}
 	}
 
 	moveItemUp() {
+		if (!this.selection) return;
 		alert('Move Up');
 	}
 
 	moveItemDown() {
+		if (!this.selection) return;
 		alert('Move Down');
 	}
 
 	deleteItem() {
+		if (!this.selection) return;
 		alert('Delete Activity');
 	}
 }

@@ -107,13 +107,13 @@ export const buildMenu = async () => {
 				id: 'next_item',
 				text: 'Next',
 				accelerator: 'CmdOrCtrl+Down',
-				action: gs.gotoNext.bind(gs)
+				action: gs.selectNext.bind(gs)
 			}),
 			await MenuItem.new({
 				id: 'previous_item',
 				text: 'Previous',
 				accelerator: 'CmdOrCtrl+Up',
-				action: gs.gotoPrevious.bind(gs)
+				action: gs.selectPrevious.bind(gs)
 			}),
 			separator,
 			await MenuItem.new({
@@ -191,13 +191,13 @@ export const buildMenu = async () => {
 			gs.moveItemUp();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowUp') {
 			e.preventDefault();
-			gs.gotoPrevious();
+			gs.selectPrevious();
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowDown') {
 			e.preventDefault();
 			gs.moveItemDown();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
 			e.preventDefault();
-			gs.gotoNext();
+			gs.selectNext();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'Delete') {
 			e.preventDefault();
 			gs.deleteDialog = true;

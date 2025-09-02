@@ -3,7 +3,11 @@
 	import type { Honor } from '$lib/types';
 	import { orderGradeLevels, orderRecognitions } from '$lib/utils/sorting';
 
-	let { honor } = $props<{ honor: Honor }>();
+	let {
+		honor,
+		isSelected: selected,
+		onclick
+	} = $props<{ honor: Honor; isSelected: boolean; onclick: () => void }>();
 
 	const formatGradeLevels = (gradeLevels: Set<string>): string => {
 		const arr = Array.from(gradeLevels).sort(orderGradeLevels);
@@ -35,9 +39,7 @@
 	};
 </script>
 
-<Card.Root
-	class="cursor-default gap-0 border-transparent py-4 text-sm shadow-none hover:border-indigo-100"
->
+<Card.Root class={['card cursor-default gap-0 py-4 text-sm shadow-none', { selected }]} {onclick}>
 	<Card.Content class="my-0 flex flex-col py-0">
 		<div class=" grid grid-cols-[12px_3fr_2fr_2fr] gap-x-4 gap-y-2">
 			<div class="min-w-0 font-medium">{honor.order}</div>

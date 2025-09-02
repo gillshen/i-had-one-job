@@ -157,3 +157,14 @@ textarea {
 label {
 	line-height: 135%;
 }
+
+.card {
+	border-color: transparent;
+	border-width: 2px;
+}
+.card.selected {
+	border-color: oklch(70.7% 0.165 254.624);
+}
+.card:hover {
+	background-color: oklch(97% 0.014 254.604);
+}
