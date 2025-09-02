@@ -128,24 +128,22 @@ export const buildMenu = async () => {
 				accelerator: 'CmdOrCtrl+Shift+H',
 				action: gs.newHonor.bind(gs)
 			}),
-			await MenuItem.new({
-				id: 'duplicate_activity',
-				text: 'Duplicate',
-				accelerator: 'CmdOrCtrl+D',
-				action: gs.duplicateItem.bind(gs)
-			}),
 			separator,
 			await MenuItem.new({
 				id: 'move_up',
 				text: 'Move Up',
 				accelerator: 'CmdOrCtrl+Shift+Up',
-				action: gs.moveItemUp.bind(gs)
+				action: () => {
+					if (gs.selection) gs.moveItemUp(gs.selection);
+				}
 			}),
 			await MenuItem.new({
 				id: 'move_down',
 				text: 'Move Down',
 				accelerator: 'CmdOrCtrl+Shift+Down',
-				action: gs.moveItemDown.bind(gs)
+				action: () => {
+					if (gs.selection) gs.moveItemDown(gs.selection);
+				}
 			}),
 			separator,
 
@@ -153,7 +151,9 @@ export const buildMenu = async () => {
 				id: 'delete_activity',
 				text: 'Delete...',
 				accelerator: 'CmdOrCtrl+Delete',
-				action: () => (gs.deleteDialog = true)
+				action: () => {
+					if (gs.selection) gs.deleteDialog = true;
+				}
 			})
 		]
 	});
@@ -183,24 +183,27 @@ export const buildMenu = async () => {
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
 			e.preventDefault();
 			await gs.save();
-		} else if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-			e.preventDefault();
-			gs.duplicateItem();
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowUp') {
 			e.preventDefault();
-			gs.moveItemUp();
+			if (gs.selection) {
+				gs.moveItemUp(gs.selection);
+			}
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowUp') {
 			e.preventDefault();
 			gs.selectPrevious();
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowDown') {
 			e.preventDefault();
-			gs.moveItemDown();
+			if (gs.selection) {
+				gs.moveItemDown(gs.selection);
+			}
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
 			e.preventDefault();
 			gs.selectNext();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'Delete') {
 			e.preventDefault();
-			gs.deleteDialog = true;
+			if (gs.selection) {
+				gs.deleteDialog = true;
+			}
 		}
 	});
 };

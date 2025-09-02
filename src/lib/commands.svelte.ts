@@ -9,7 +9,7 @@ import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs
 
 type ItemType = 'activity' | 'honor';
 
-type Selection = {
+export type Selection = {
 	type: ItemType;
 	index: number;
 };
@@ -136,11 +136,6 @@ class GlobalState {
 		this.selection = { type: 'honor', index: this.honors.length - 1 };
 	}
 
-	duplicateItem() {
-		if (!this.selection) return;
-		alert('To be implemented');
-	}
-
 	selectActivity(index: number) {
 		// select the indexd activity or the first/last activity if index out of bound
 		if (!this.activities.length) return;
@@ -196,19 +191,30 @@ class GlobalState {
 		}
 	}
 
-	moveItemUp() {
-		if (!this.selection) return;
-		alert('Move Up');
+	moveItemUp(selection: Selection) {
+		console.log(selection);
+		alert(`Move ${selection.type} ${selection.index + 1} up`);
 	}
 
-	moveItemDown() {
-		if (!this.selection) return;
-		alert('Move Down');
+	moveItemDown(selection: Selection) {
+		console.log(selection);
+		alert(`Move ${selection.type} ${selection.index + 1} down`);
 	}
 
-	deleteItem() {
+	deleteSelected() {
 		if (!this.selection) return;
-		alert('Delete Activity');
+
+		const index = this.selection.index;
+		if (this.selection.type === 'honor') {
+			const head = this.honors.slice(0, index);
+			const tail = this.honors.slice(index + 1).map((h) => ({ ...h, order: h.order - 1 }));
+			this.honors = [...head.concat(tail)];
+		} else {
+			const head = this.activities.slice(0, index);
+			const tail = this.activities.slice(index + 1).map((a) => ({ ...a, order: a.order - 1 }));
+			this.activities = [...head.concat(tail)];
+		}
+		this.selection = null;
 	}
 }
 

@@ -8,13 +8,18 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 
 	// global state
-	import { gs } from '$lib/commands.svelte';
+	import { gs, type Selection as SelectedItem } from '$lib/commands.svelte';
 	import { buildMenu } from '$lib/menu';
 
 	import CAFrActivityCard from '$lib/components/CAFrActivityCard.svelte';
 	import CaFrActivityForm from '$lib/components/CAFrActivityForm.svelte';
 	import CaFrHonorCard from '$lib/components/CAFrHonorCard.svelte';
 	import CaFrHonorForm from '$lib/components/CAFrHonorForm.svelte';
+
+	const formatSelectedItem = (item: SelectedItem): string => {
+		const itemType = item.type === 'activity' ? 'Activity' : 'Honor';
+		return `${itemType} ${item.index + 1}`;
+	};
 
 	$effect(() => {
 		const appName = 'Activity List Editor';
@@ -37,6 +42,12 @@
 							{honor}
 							isSelected={gs.isSelected({ type: 'honor', index })}
 							onclick={() => gs.selectHonor(index)}
+							onMoveUp={() => gs.moveItemUp({ type: 'honor', index })}
+							onMoveDown={() => gs.moveItemDown({ type: 'honor', index })}
+							onDelete={() => {
+								gs.selectHonor(index);
+								gs.deleteDialog = true;
+							}}
 						/>
 					{/each}
 				</div>
@@ -50,8 +61,14 @@
 					{#each gs.activities as activity, index}
 						<CAFrActivityCard
 							{activity}
-							isSelected={gs.isSelected({ type: 'activity', index })}
+							isSelected={gs.isSelected({ type: 'activity', index: index })}
 							onclick={() => gs.selectActivity(index)}
+							onMoveUp={() => gs.moveItemUp({ type: 'activity', index: index })}
+							onMoveDown={() => gs.moveItemDown({ type: 'activity', index: index })}
+							onDelete={() => {
+								gs.selectActivity(index);
+								gs.deleteDialog = true;
+							}}
 						/>
 					{/each}
 				</div>
@@ -65,8 +82,9 @@
 		<!-- editor -->
 		<div class="flex max-h-screen flex-col gap-6 py-6">
 			<div class="px-8 font-semibold">
-				{gs.context.name} | {gs.selection?.type ?? ''}
-				{gs.selection?.index ?? ''}
+				{gs.context.name}
+				{#if gs.selection}
+					&bull; {formatSelectedItem(gs.selection)}{/if}
 			</div>
 			{#if gs.selection?.type === 'honor'}
 				<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
@@ -82,9 +100,12 @@
 		class="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg"
 	>
 		<Dialog.Title class="mb-4 text-lg font-semibold">Confirm Deletion</Dialog.Title>
-		<Dialog.Description class="mb-6 text-sm text-zinc-600">
-			Are you sure you want to delete this activity? This action cannot be undone.
-		</Dialog.Description>
+		{#if gs.selection}
+			<Dialog.Description class="mb-6 text-sm text-zinc-600">
+				Are you sure you want to delete {formatSelectedItem(gs.selection)}? This action cannot be
+				undone.
+			</Dialog.Description>
+		{/if}
 		<div class="flex justify-end space-x-4">
 			<Button type="button" variant="outline" onclick={() => (gs.deleteDialog = false)}>
 				Cancel
@@ -93,7 +114,7 @@
 				type="button"
 				variant="destructive"
 				onclick={() => {
-					gs.deleteItem();
+					gs.deleteSelected();
 					gs.deleteDialog = false;
 				}}
 			>

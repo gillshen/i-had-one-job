@@ -1,13 +1,25 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import { MoveUp, MoveDown, Trash } from '@lucide/svelte';
 	import type { Activity } from '$lib/types';
 	import { orderGradeLevels, orderTimings } from '$lib/utils/sorting';
 
 	let {
 		activity,
 		isSelected: selected,
-		onclick
-	} = $props<{ activity: Activity; isSelected: boolean; onclick: () => void }>();
+		onclick,
+		onMoveUp,
+		onMoveDown,
+		onDelete
+	} = $props<{
+		activity: Activity;
+		isSelected: boolean;
+		onclick: () => void;
+		onMoveUp: () => void;
+		onMoveDown: () => void;
+		onDelete: () => void;
+	}>();
 
 	const formatGradeLevels = (gradeLevels: Set<string>): string => {
 		const arr = Array.from(gradeLevels).sort(orderGradeLevels);
@@ -37,9 +49,39 @@
 	};
 </script>
 
-<Card.Root class={['card cursor-default gap-2 text-sm shadow-none', { selected }]} {onclick}>
+<Card.Root class={['card group cursor-default gap-2 text-sm shadow-none', { selected }]} {onclick}>
 	<Card.Header class="mb-0">
-		<Card.Title class="text-xl font-semibold">{activity.order}. {activity.type}</Card.Title>
+		<Card.Title class="flex items-center justify-between">
+			<div class="text-xl font-semibold">
+				{activity.order}. {activity.type}
+			</div>
+			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
+				<Button
+					onclick={onMoveUp}
+					variant="ghost"
+					size="icon"
+					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+				>
+					<MoveUp class="size-3" />
+				</Button>
+				<Button
+					onclick={onMoveDown}
+					variant="ghost"
+					size="icon"
+					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+				>
+					<MoveDown class="size-3" />
+				</Button>
+				<Button
+					onclick={onDelete}
+					variant="ghost"
+					size="icon"
+					class="size-6 cursor-pointer rounded-full hover:bg-white hover:text-red-600 hover:shadow-md"
+				>
+					<Trash class="size-3" />
+				</Button>
+			</div>
+		</Card.Title>
 	</Card.Header>
 	<Card.Content class="mt-0">
 		<div class="grid grid-cols-3 gap-2">

@@ -1,13 +1,25 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import { MoveUp, MoveDown, Trash } from '@lucide/svelte';
 	import type { Honor } from '$lib/types';
 	import { orderGradeLevels, orderRecognitions } from '$lib/utils/sorting';
 
 	let {
 		honor,
 		isSelected: selected,
-		onclick
-	} = $props<{ honor: Honor; isSelected: boolean; onclick: () => void }>();
+		onclick,
+		onMoveUp,
+		onMoveDown,
+		onDelete
+	} = $props<{
+		honor: Honor;
+		isSelected: boolean;
+		onclick: () => void;
+		onMoveUp: () => void;
+		onMoveDown: () => void;
+		onDelete: () => void;
+	}>();
 
 	const formatGradeLevels = (gradeLevels: Set<string>): string => {
 		const arr = Array.from(gradeLevels).sort(orderGradeLevels);
@@ -39,9 +51,12 @@
 	};
 </script>
 
-<Card.Root class={['card cursor-default gap-0 py-4 text-sm shadow-none', { selected }]} {onclick}>
+<Card.Root
+	class={['card group cursor-default gap-0 py-4 text-sm shadow-none', { selected }]}
+	{onclick}
+>
 	<Card.Content class="my-0 flex flex-col py-0">
-		<div class=" grid grid-cols-[12px_3fr_2fr_2fr] gap-x-4 gap-y-2">
+		<div class=" grid grid-cols-[12px_3fr_2fr_2fr_2fr] gap-x-4 gap-y-2">
 			<div class="min-w-0 font-medium">{honor.order}</div>
 			<div class="flex min-w-0 flex-col gap-2">
 				<div class="font-medium">
@@ -55,6 +70,32 @@
 			</div>
 			<div class="min-w-0">{formatRecognitionLevels(honor.level_of_recognition)}</div>
 			<div class="min-w-0">{formatGradeLevels(honor.grade_level)}</div>
+			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
+				<Button
+					onclick={onMoveUp}
+					variant="ghost"
+					size="icon"
+					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+				>
+					<MoveUp class="size-3" />
+				</Button>
+				<Button
+					onclick={onMoveDown}
+					variant="ghost"
+					size="icon"
+					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+				>
+					<MoveDown class="size-3" />
+				</Button>
+				<Button
+					onclick={onDelete}
+					variant="ghost"
+					size="icon"
+					class="size-6 cursor-pointer rounded-full hover:bg-white hover:text-red-600 hover:shadow-md"
+				>
+					<Trash class="size-3" />
+				</Button>
+			</div>
 		</div>
 	</Card.Content>
 </Card.Root>
