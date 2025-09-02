@@ -41,13 +41,16 @@
 	<Card.Content class="my-0 flex flex-col py-0">
 		<div class=" grid grid-cols-[12px_3fr_2fr_2fr] gap-x-4 gap-y-2">
 			<div class="min-w-0 font-medium">{honor.order}</div>
-			<div class="min-w-0 font-medium">{honor.title}</div>
+			<div class="flex min-w-0 flex-col gap-2">
+				<div class="font-medium">
+					{honor.title}
+				</div>
+				{#if honor.comments}
+					<div class="col-span-2 text-red-600">{honor.comments}</div>
+				{/if}
+			</div>
 			<div class="min-w-0">{formatRecognitionLevels(honor.level_of_recognition)}</div>
 			<div class="min-w-0">{formatGradeLevels(honor.grade_level)}</div>
-			{#if honor.comments}
-				<div></div>
-				<div class="col-span-2 text-red-600">{honor.comments}</div>
-			{/if}
 		</div>
 	</Card.Content>
 </Card.Root>
