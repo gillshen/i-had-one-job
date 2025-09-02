@@ -6,6 +6,7 @@
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { Activity } from '$lib/types';
+	import CharLimit from '$lib/components/CharLimit.svelte';
 
 	let { activity = $bindable() } = $props<{ activity: Activity }>();
 
@@ -75,11 +76,13 @@
 	<div class="flex flex-col gap-2">
 		<Label for="position">Position/Leadership description</Label>
 		<Input id="position" bind:value={activity.position} spellcheck="true" />
+		<CharLimit content={activity.position} limit={50} />
 	</div>
 
 	<div class="flex flex-col gap-2">
 		<Label for="title">Organization</Label>
 		<Textarea id="title" bind:value={activity.organization} spellcheck={true} />
+		<CharLimit content={activity.organization} limit={100} />
 	</div>
 
 	<div class="flex flex-col gap-2">
@@ -88,6 +91,7 @@
 			received, etc.</Label
 		>
 		<Textarea id="description" bind:value={activity.description} spellcheck="true" />
+		<CharLimit content={activity.description} limit={150} />
 	</div>
 
 	<div class="flex flex-col gap-2">

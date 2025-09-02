@@ -49,8 +49,18 @@
 				<div>{activity.hours_per_week ?? 'x'} hr/wk, {activity.weeks_per_year ?? 'x'} wk/yr</div>
 			</div>
 			<div class="col-span-2 flex flex-col">
-				<div class="mb-1 font-semibold">{activity.position}, {activity.organization}</div>
-				<div>{activity.description}</div>
+				<div class="mb-1 font-semibold">
+					<span>{activity.position.slice(0, 50)}</span><span class="over-limit"
+						>{activity.position.slice(50)}</span
+					>, <span>{activity.organization.slice(0, 100)}</span><span class="over-limit"
+						>{activity.organization.slice(100)}</span
+					>
+				</div>
+				<div>
+					<span>{activity.description.slice(0, 150)}</span><span class="over-limit"
+						>{activity.description.slice(150)}</span
+					>
+				</div>
 				{#if activity.comments}
 					<div class="mt-2 text-red-600">{activity.comments}</div>
 				{/if}

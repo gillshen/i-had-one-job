@@ -15,7 +15,7 @@
         "title": "Activity List Editor",
         "label": "main",
         "width": 1200,
-        "height": 700,
+        "height": 750,
         "resizable": true,
         "fullscreen": false
       }

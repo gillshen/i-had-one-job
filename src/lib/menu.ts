@@ -119,7 +119,7 @@ export const buildMenu = async () => {
 			await MenuItem.new({
 				id: 'new_activity',
 				text: 'New Activity',
-				accelerator: 'CmdOrCtrl+Shift+N',
+				accelerator: 'CmdOrCtrl+Shift+A',
 				action: gs.newActivity.bind(gs)
 			}),
 			await MenuItem.new({
@@ -168,12 +168,12 @@ export const buildMenu = async () => {
 		if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
 			e.preventDefault();
 			await gs.open();
-		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'n') {
-			e.preventDefault();
-			gs.newActivity();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
 			e.preventDefault();
 			gs.new();
+		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+			e.preventDefault();
+			gs.newActivity();
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'h') {
 			e.preventDefault();
 			gs.newHonor();

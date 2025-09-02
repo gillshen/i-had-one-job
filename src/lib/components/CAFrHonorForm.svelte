@@ -4,6 +4,7 @@
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { Honor } from '$lib/types';
+	import CharLimit from '$lib/components/CharLimit.svelte';
 
 	let { honor = $bindable() } = $props<{ honor: Honor }>();
 
@@ -27,6 +28,7 @@
 	<div class="flex flex-col gap-2">
 		<Label for="title">Title</Label>
 		<Textarea id="title" bind:value={honor.title} spellcheck={true} />
+		<CharLimit content={honor.title} limit={100} />
 	</div>
 
 	<div class="flex flex-col gap-2">

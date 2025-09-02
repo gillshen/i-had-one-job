@@ -45,7 +45,9 @@
 			<div class="min-w-0 font-medium">{honor.order}</div>
 			<div class="flex min-w-0 flex-col gap-2">
 				<div class="font-medium">
-					{honor.title}
+					<span>{honor.title.slice(0, 100)}</span><span class="over-limit"
+						>{honor.title.slice(100)}</span
+					>
 				</div>
 				{#if honor.comments}
 					<div class="col-span-2 text-red-600">{honor.comments}</div>
