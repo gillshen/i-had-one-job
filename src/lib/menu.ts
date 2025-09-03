@@ -133,17 +133,13 @@ export const buildMenu = async () => {
 				id: 'move_up',
 				text: 'Move Up',
 				accelerator: 'CmdOrCtrl+Shift+Up',
-				action: () => {
-					if (gs.selection) gs.moveItemUp(gs.selection);
-				}
+				action: gs.moveItemUp.bind(gs)
 			}),
 			await MenuItem.new({
 				id: 'move_down',
 				text: 'Move Down',
 				accelerator: 'CmdOrCtrl+Shift+Down',
-				action: () => {
-					if (gs.selection) gs.moveItemDown(gs.selection);
-				}
+				action: gs.moveItemDown.bind(gs)
 			}),
 			separator,
 
@@ -186,7 +182,7 @@ export const buildMenu = async () => {
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowUp') {
 			e.preventDefault();
 			if (gs.selection) {
-				gs.moveItemUp(gs.selection);
+				gs.moveItemUp();
 			}
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowUp') {
 			e.preventDefault();
@@ -194,7 +190,7 @@ export const buildMenu = async () => {
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowDown') {
 			e.preventDefault();
 			if (gs.selection) {
-				gs.moveItemDown(gs.selection);
+				gs.moveItemDown();
 			}
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
 			e.preventDefault();

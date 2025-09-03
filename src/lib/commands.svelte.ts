@@ -1,11 +1,11 @@
 import type { Context, Activity, Honor } from './types';
+import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 import {
 	APPLICATION_SYSTEMS,
 	newActivity,
 	newHonor,
 	serializeCAFrWorkbook
 } from './applicationSystems';
-import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 
 type ItemType = 'activity' | 'honor';
 
@@ -124,7 +124,7 @@ class GlobalState {
 			// TODO vary with context?
 			newActivity(this.activities.length + 1)
 		];
-		this.selection = { type: 'activity', index: this.activities.length - 1 };
+		this.selectActivity(this.activities.length - 1);
 	}
 
 	newHonor() {
@@ -133,7 +133,7 @@ class GlobalState {
 			// TODO vary with context?
 			newHonor(this.honors.length + 1)
 		];
-		this.selection = { type: 'honor', index: this.honors.length - 1 };
+		this.selectHonor(this.honors.length - 1);
 	}
 
 	selectActivity(index: number) {
@@ -141,6 +141,7 @@ class GlobalState {
 		if (!this.activities.length) return;
 		const safeIndex = Math.max(0, Math.min(index, this.activities.length - 1));
 		this.selection = { type: 'activity', index: safeIndex };
+		console.log(`${this.selection?.type} ${this.selection?.index}`);
 	}
 
 	selectHonor(index: number) {
@@ -148,7 +149,6 @@ class GlobalState {
 		if (!this.honors.length) return;
 		const safeIndex = Math.max(0, Math.min(index, this.honors.length - 1));
 		this.selection = { type: 'honor', index: safeIndex };
-		console.log(this.selection);
 	}
 
 	selectNext() {
@@ -191,14 +191,54 @@ class GlobalState {
 		}
 	}
 
-	moveItemUp(selection: Selection) {
-		console.log(selection);
-		alert(`Move ${selection.type} ${selection.index + 1} up`);
+	moveItemUp() {
+		const selection = this.selection;
+		if (!selection || selection.index === 0) return;
+
+		const array = selection.type === 'honor' ? [...this.honors] : [...this.activities];
+		if (array.length < 2) return;
+
+		// swap items
+		[array[selection.index - 1], array[selection.index]] = [
+			array[selection.index],
+			array[selection.index - 1]
+		];
+		// update order numbers
+		array[selection.index - 1].order = selection.index;
+		array[selection.index].order = selection.index + 1;
+
+		if (selection.type === 'honor') {
+			this.honors = [...array] as Honor[];
+			this.selectHonor(selection.index - 1);
+		} else {
+			this.activities = [...array] as Activity[];
+			this.selectActivity(selection.index - 1);
+		}
 	}
 
-	moveItemDown(selection: Selection) {
-		console.log(selection);
-		alert(`Move ${selection.type} ${selection.index + 1} down`);
+	moveItemDown() {
+		const selection = this.selection;
+		if (!selection) return;
+
+		const array = selection.type === 'honor' ? [...this.honors] : [...this.activities];
+		if (selection.index >= array.length - 1) return;
+
+		// swap items
+		[array[selection.index], array[selection.index + 1]] = [
+			array[selection.index + 1],
+			array[selection.index]
+		];
+		// update order numbers
+		array[selection.index].order = selection.index + 1;
+		array[selection.index + 1].order = selection.index + 2;
+
+		if (selection.type === 'honor') {
+			this.honors = [...array] as Honor[];
+			this.selectHonor(selection.index + 1);
+		} else {
+			this.activities = [...array] as Activity[];
+			this.selectActivity(selection.index + 1);
+		}
 	}
 
 	deleteSelected() {

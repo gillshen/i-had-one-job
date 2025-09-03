@@ -72,7 +72,10 @@
 			<div class="min-w-0">{formatGradeLevels(honor.grade_level)}</div>
 			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
 				<Button
-					onclick={onMoveUp}
+					onclick={(e) => {
+						e.stopPropagation();
+						onMoveUp();
+					}}
 					variant="ghost"
 					size="icon"
 					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
@@ -80,7 +83,10 @@
 					<MoveUp class="size-3" />
 				</Button>
 				<Button
-					onclick={onMoveDown}
+					onclick={(e) => {
+						e.stopPropagation();
+						onMoveDown();
+					}}
 					variant="ghost"
 					size="icon"
 					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
@@ -88,7 +94,10 @@
 					<MoveDown class="size-3" />
 				</Button>
 				<Button
-					onclick={onDelete}
+					onclick={(e) => {
+						e.stopPropagation();
+						onDelete();
+					}}
 					variant="ghost"
 					size="icon"
 					class="size-6 cursor-pointer rounded-full hover:bg-white hover:text-red-600 hover:shadow-md"

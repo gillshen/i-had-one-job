@@ -42,8 +42,14 @@
 							{honor}
 							isSelected={gs.isSelected({ type: 'honor', index })}
 							onclick={() => gs.selectHonor(index)}
-							onMoveUp={() => gs.moveItemUp({ type: 'honor', index })}
-							onMoveDown={() => gs.moveItemDown({ type: 'honor', index })}
+							onMoveUp={() => {
+								gs.selectHonor(index);
+								gs.moveItemUp();
+							}}
+							onMoveDown={() => {
+								gs.selectHonor(index);
+								gs.moveItemDown();
+							}}
 							onDelete={() => {
 								gs.selectHonor(index);
 								gs.deleteDialog = true;
@@ -63,8 +69,14 @@
 							{activity}
 							isSelected={gs.isSelected({ type: 'activity', index: index })}
 							onclick={() => gs.selectActivity(index)}
-							onMoveUp={() => gs.moveItemUp({ type: 'activity', index: index })}
-							onMoveDown={() => gs.moveItemDown({ type: 'activity', index: index })}
+							onMoveUp={() => {
+								gs.selectActivity(index);
+								gs.moveItemUp();
+							}}
+							onMoveDown={() => {
+								gs.selectActivity(index);
+								gs.moveItemDown();
+							}}
 							onDelete={() => {
 								gs.selectActivity(index);
 								gs.deleteDialog = true;
