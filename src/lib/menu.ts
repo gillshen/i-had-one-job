@@ -78,8 +78,7 @@ export const buildMenu = async () => {
 			sysMenuItemUC.setChecked(true);
 			sysMenuItemCL.setChecked(false);
 		},
-		checked: gs.context.id === 'UC',
-		enabled: false
+		checked: gs.context.id === 'UC'
 	});
 	const sysMenuItemCL = await CheckMenuItem.new({
 		id: 'cl_check',
@@ -200,6 +199,8 @@ export const buildMenu = async () => {
 			if (gs.selection) {
 				gs.deleteDialog = true;
 			}
+		} else if (e.key === 'Escape') {
+			gs.clearSelection();
 		}
 	});
 };

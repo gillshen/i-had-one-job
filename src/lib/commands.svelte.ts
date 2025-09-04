@@ -1,11 +1,6 @@
 import type { Context, Activity, Honor } from './types';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
-import {
-	APPLICATION_SYSTEMS,
-	newActivity,
-	newHonor,
-	serializeCAFrWorkbook
-} from './applicationSystems';
+import { APPLICATION_SYSTEMS, newActivity, newHonor } from './applicationSystems';
 
 type ItemType = 'activity' | 'honor';
 
@@ -27,6 +22,8 @@ class GlobalState {
 	}
 
 	set context(key: keyof typeof APPLICATION_SYSTEMS) {
+		if (key === this.context.id) return;
+		this.new();
 		this._context = APPLICATION_SYSTEMS[key];
 	}
 
@@ -80,7 +77,7 @@ class GlobalState {
 		this.filePath = '';
 		this.activities = [];
 		this.honors = [];
-		this.selection = null;
+		this.clearSelection();
 	}
 
 	async open() {
@@ -95,6 +92,7 @@ class GlobalState {
 		} catch (e) {
 			// TODO handle error properly
 			this.filePath = `error: ${e}`;
+			throw e;
 		}
 	}
 
@@ -106,7 +104,7 @@ class GlobalState {
 		}
 		await saveFile(
 			this.filePath,
-			serializeCAFrWorkbook({ activities: this.activities, honors: this.honors })
+			this.context.serialize({ activities: this.activities, honors: this.honors })
 		);
 	}
 
@@ -119,21 +117,18 @@ class GlobalState {
 	}
 
 	newActivity() {
-		this.activities = [
-			...this.activities,
-			// TODO vary with context?
-			newActivity(this.activities.length + 1)
-		];
+		this.activities = [...this.activities, newActivity(this.activities.length + 1)];
 		this.selectActivity(this.activities.length - 1);
 	}
 
 	newHonor() {
-		this.honors = [
-			...this.honors,
-			// TODO vary with context?
-			newHonor(this.honors.length + 1)
-		];
+		if (this.context.id !== 'CA_FRESHMAN') return;
+		this.honors = [...this.honors, newHonor(this.honors.length + 1)];
 		this.selectHonor(this.honors.length - 1);
+	}
+
+	clearSelection() {
+		this.selection = null;
 	}
 
 	selectActivity(index: number) {

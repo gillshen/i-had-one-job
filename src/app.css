@@ -180,3 +180,9 @@ span.over-limit {
 	background-color: oklch(88.5% 0.062 18.334);
 	border-radius: var(--radius-sm);
 }
+
+.uc-helper {
+	font-size: smaller;
+	color: oklch(44.2% 0.017 285.786);
+	user-select: none;
+}

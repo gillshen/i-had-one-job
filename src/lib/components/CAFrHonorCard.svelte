@@ -5,21 +5,15 @@
 	import type { Honor } from '$lib/types';
 	import { orderGradeLevels, orderRecognitions } from '$lib/utils/sorting';
 
-	let {
-		honor,
-		isSelected: selected,
-		onclick,
-		onMoveUp,
-		onMoveDown,
-		onDelete
-	} = $props<{
+	type Props = {
 		honor: Honor;
 		isSelected: boolean;
 		onclick: () => void;
 		onMoveUp: () => void;
 		onMoveDown: () => void;
 		onDelete: () => void;
-	}>();
+	};
+	let { honor, isSelected: selected, onclick, onMoveUp, onMoveDown, onDelete }: Props = $props();
 
 	const formatGradeLevels = (gradeLevels: Set<string>): string => {
 		const arr = Array.from(gradeLevels).sort(orderGradeLevels);
@@ -28,7 +22,7 @@
 
 	const formatRecognitionLevels = (recLevels: Set<string>): string => {
 		return Array.from(recLevels)
-			.map((lvl) => lvl.toLowerCase())
+			.map((lvl) => lvl.toLowerCase().trim())
 			.sort(orderRecognitions)
 			.map(formatRecognitionLevel)
 			.join(', ');

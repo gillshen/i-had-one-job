@@ -15,6 +15,8 @@
 	import CaFrActivityForm from '$lib/components/CAFrActivityForm.svelte';
 	import CaFrHonorCard from '$lib/components/CAFrHonorCard.svelte';
 	import CaFrHonorForm from '$lib/components/CAFrHonorForm.svelte';
+	import UcActivityCard from '$lib/components/UCActivityCard.svelte';
+	import UcActivityForm from '$lib/components/UCActivityForm.svelte';
 
 	const formatSelectedItem = (item: SelectedItem): string => {
 		const itemType = item.type === 'activity' ? 'Activity' : 'Honor';
@@ -58,15 +60,41 @@
 					{/each}
 				</div>
 			{/if}
+
 			{#if gs.honors.length && gs.activities.length}
 				<Separator class="mt-4 mb-6 w-[calc(100%-48px)]" />
 			{/if}
+
 			{#if gs.activities.length && gs.context.id !== 'UC'}
 				<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Activities</h2>
 				<div class="flex flex-col gap-1">
 					{#each gs.activities as activity, index}
 						<CAFrActivityCard
 							{activity}
+							isSelected={gs.isSelected({ type: 'activity', index: index })}
+							onclick={() => gs.selectActivity(index)}
+							onMoveUp={() => {
+								gs.selectActivity(index);
+								gs.moveItemUp();
+							}}
+							onMoveDown={() => {
+								gs.selectActivity(index);
+								gs.moveItemDown();
+							}}
+							onDelete={() => {
+								gs.selectActivity(index);
+								gs.deleteDialog = true;
+							}}
+						/>
+					{/each}
+				</div>
+			{:else if gs.activities.length}
+				<h2 class="px-6 pb-2 text-2xl font-bold">Activities &amp; Awards</h2>
+				<div class="flex flex-col gap-1">
+					{#each gs.activities as activity, index}
+						<UcActivityCard
+							{activity}
+							{index}
 							isSelected={gs.isSelected({ type: 'activity', index: index })}
 							onclick={() => gs.selectActivity(index)}
 							onMoveUp={() => {
@@ -101,7 +129,11 @@
 			{#if gs.selection?.type === 'honor'}
 				<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
 			{:else if gs.selection?.type === 'activity'}
-				<CaFrActivityForm bind:activity={gs.activities[gs.selection.index]} />
+				{#if gs.context.id === 'CA_FRESHMAN'}
+					<CaFrActivityForm bind:activity={gs.activities[gs.selection.index]} />
+				{:else if gs.context.id === 'UC'}
+					<UcActivityForm bind:activity={gs.activities[gs.selection.index]} />
+				{/if}
 			{/if}
 		</div>
 	</Resizable.Pane>

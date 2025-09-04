@@ -1,5 +1,9 @@
 <script lang="ts">
-	let { content, limit } = $props<{ content: string; limit: number }>();
+	type Props = {
+		content: string;
+		limit: number;
+	};
+	let { content, limit }: Props = $props();
 	let remaining = $derived(limit - content.length);
 	let invalid = $derived(remaining < 0);
 </script>

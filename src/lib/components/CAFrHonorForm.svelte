@@ -6,7 +6,7 @@
 	import type { Honor } from '$lib/types';
 	import CharLimit from '$lib/components/CharLimit.svelte';
 
-	let { honor = $bindable() } = $props<{ honor: Honor }>();
+	let { honor = $bindable() }: { honor: Honor } = $props();
 
 	const gradeLevels = [
 		{ value: '9', label: '9' },

@@ -8,7 +8,7 @@
 	import type { Activity } from '$lib/types';
 	import CharLimit from '$lib/components/CharLimit.svelte';
 
-	let { activity = $bindable() } = $props<{ activity: Activity }>();
+	let { activity = $bindable() }: { activity: Activity } = $props<{ activity: Activity }>();
 
 	const activityTypes = [
 		'Academic',
@@ -62,10 +62,10 @@
 	<div class="flex flex-col gap-2">
 		<Label for="type">Activity type</Label>
 		<Select.Root type="single" name="type" bind:value={activity.type}>
-			<Select.Trigger class="w-full bg-white">
+			<Select.Trigger class="w-full max-w-[400px] bg-white">
 				{activity.type}
 			</Select.Trigger>
-			<Select.Content class="max-h-[400px]">
+			<Select.Content class="max-h-[400px] max-w-[400px] overflow-auto">
 				{#each activityTypes as activityType}
 					<Select.Item value={activityType} label={activityType}>{activityType}</Select.Item>
 				{/each}
