@@ -43,10 +43,13 @@
 	};
 </script>
 
-<Card.Root class={['card group cursor-default gap-2 text-sm shadow-none', { selected }]} {onclick}>
-	<Card.Header class="mb-0">
-		<Card.Title class="flex items-center justify-between">
-			<div class="text-xl font-semibold">
+<Card.Root
+	class={['card group cursor-default gap-0 py-4 text-sm shadow-none', { selected }]}
+	{onclick}
+>
+	<Card.Header class="mb-0 pb-0">
+		<Card.Title class="mb-0 flex items-center justify-between">
+			<div class="text-lg font-semibold text-[#0B6DBD]">
 				{activity.order}. {activity.type}
 			</div>
 			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
@@ -86,15 +89,15 @@
 			</div>
 		</Card.Title>
 	</Card.Header>
-	<Card.Content class="mt-0">
-		<div class="grid grid-cols-3 gap-2">
+	<Card.Content class="mt-0 pt-0">
+		<div class="grid grid-cols-[min(140px,33%)_1fr_1fr] gap-4">
 			<div class="flex flex-col">
 				<div>{formatGradeLevels(activity.grade_level)}</div>
 				<div>{formatWhen(activity.when)}</div>
 				<div>{activity.hours_per_week || 'x'} hr/wk, {activity.weeks_per_year || 'x'} wk/yr</div>
 			</div>
 			<div class="col-span-2 flex flex-col">
-				<div class="mb-1 font-semibold">
+				<div class="font-semibold">
 					<span>{activity.position.slice(0, 50)}</span><span class="over-limit"
 						>{activity.position.slice(50)}</span
 					>, <span>{activity.organization.slice(0, 100)}</span><span class="over-limit"

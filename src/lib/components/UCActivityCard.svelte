@@ -25,10 +25,13 @@
 	}: Props = $props();
 </script>
 
-<Card.Root class={['card group cursor-default gap-2 text-sm shadow-none', { selected }]} {onclick}>
+<Card.Root
+	class={['card group cursor-default gap-0 py-4 text-sm shadow-none', { selected }]}
+	{onclick}
+>
 	<Card.Header class="mb-0">
 		<Card.Title class="flex items-center justify-between">
-			<div class="text-xl font-semibold">
+			<div class="text-lg font-semibold">
 				{index + 1}. {ucActivityCategoryMap[activity.uc_category]}
 			</div>
 			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">

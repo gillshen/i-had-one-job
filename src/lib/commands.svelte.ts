@@ -1,6 +1,7 @@
 import type { Context, Activity, Honor } from './types';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 import { APPLICATION_SYSTEMS, newActivity, newHonor } from './applicationSystems';
+import type { CheckMenuItem, MenuItem } from '@tauri-apps/api/menu';
 
 type ItemType = 'activity' | 'honor';
 
@@ -9,20 +10,58 @@ export type Selection = {
 	index: number;
 };
 
-class GlobalState {
-	private _context: Context = $state(APPLICATION_SYSTEMS['CA_FRESHMAN']);
+export class GlobalState {
+	private _menuItems: Record<string, MenuItem> = {};
+	private _checkMenuItems: Record<string, CheckMenuItem> = {};
+	private _context: Context | null = $state(null);
 	private _activities: Activity[] = $state([]);
 	private _honors: Honor[] = $state([]);
 	private _filePath: string = $state('');
 	private _selection: Selection | null = $state(null);
 	private _deleteDialog: boolean = $state(false);
 
-	get context(): Context {
+	setMenuItem(id: string, item: MenuItem) {
+		this._menuItems[id] = item;
+	}
+
+	setCheckMenuItems(id: string, item: CheckMenuItem) {
+		this._checkMenuItems[id] = item;
+	}
+
+	updateMenuItems() {
+		// disable file operations unless context is set
+		this._menuItems['new-file']?.setEnabled(!!this.context);
+		this._menuItems['open-file']?.setEnabled(!!this.context);
+		this._menuItems['save-file']?.setEnabled(!!this.context);
+		this._menuItems['save-file-as']?.setEnabled(!!this.context);
+
+		// set the check statuses of system menu items
+		this._checkMenuItems['context-caf']?.setChecked(this.context?.id === 'CA_FRESHMAN');
+		this._checkMenuItems['context-cat']?.setChecked(this.context?.id === 'CA_TRANSFER');
+		this._checkMenuItems['context-uc']?.setChecked(this.context?.id === 'UC');
+		this._checkMenuItems['context-cl']?.setChecked(this.context?.id === 'COALITION');
+
+		// disable next/prev navigation unless there is at least one item
+		this._menuItems['next-item']?.setEnabled(!!this.activities.length || !!this.honors.length);
+		this._menuItems['prev-item']?.setEnabled(!!this.activities.length || !!this.honors.length);
+
+		// disable creation of new activities unless context is set
+		this._menuItems['new-activity']?.setEnabled(!!this.context);
+		// disable creation of new honors unless context is common app first-year
+		this._menuItems['new-honor']?.setEnabled(this.context?.id === 'CA_FRESHMAN');
+
+		// disable moving and deleting items unless one is selected
+		this._menuItems['move-up']?.setEnabled(!!this.selection);
+		this._menuItems['move-down']?.setEnabled(!!this.selection);
+		this._menuItems['delete']?.setEnabled(!!this.selection);
+	}
+
+	get context(): Context | null {
 		return this._context;
 	}
 
 	set context(key: keyof typeof APPLICATION_SYSTEMS) {
-		if (key === this.context.id) return;
+		if (key === this.context?.id) return;
 		this.new();
 		this._context = APPLICATION_SYSTEMS[key];
 	}
@@ -81,6 +120,7 @@ class GlobalState {
 	}
 
 	async open() {
+		if (!this.context) return;
 		const filePath = (await getOpenFilePath(this.context.fileFilter)) ?? '';
 		if (!filePath) return;
 		try {
@@ -97,6 +137,7 @@ class GlobalState {
 	}
 
 	async save() {
+		if (!this.context) return;
 		if (!this.filePath) {
 			// if no file is opened, prompt the user to save as
 			await this.saveAs();
@@ -109,6 +150,7 @@ class GlobalState {
 	}
 
 	async saveAs() {
+		if (!this.context) return;
 		const filePath = (await getSaveFilePath(this.context.fileFilter)) ?? '';
 		if (filePath) {
 			this.filePath = filePath;
@@ -122,7 +164,7 @@ class GlobalState {
 	}
 
 	newHonor() {
-		if (this.context.id !== 'CA_FRESHMAN') return;
+		if (!this.context || this.context.id !== 'CA_FRESHMAN') return;
 		this.honors = [...this.honors, newHonor(this.honors.length + 1)];
 		this.selectHonor(this.honors.length - 1);
 	}

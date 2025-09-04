@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
 
 	import * as Resizable from '$lib/components/ui/resizable/';
@@ -9,7 +8,6 @@
 
 	// global state
 	import { gs, type Selection as SelectedItem } from '$lib/commands.svelte';
-	import { buildMenu } from '$lib/menu';
 
 	import CAFrActivityCard from '$lib/components/CAFrActivityCard.svelte';
 	import CaFrActivityForm from '$lib/components/CAFrActivityForm.svelte';
@@ -27,117 +25,157 @@
 		const appName = 'Activity List Editor';
 		const title = gs.filePath ? `${appName} | ${gs.filePath}` : appName;
 		getCurrentWindow().setTitle(title).then().catch(console.log);
+		gs.updateMenuItems();
 	});
-
-	onMount(buildMenu);
 </script>
 
-<Resizable.PaneGroup direction="horizontal" class="min-h-screen w-full rounded-xl">
-	<Resizable.Pane defaultSize={50} minSize={1}>
-		<!-- a list of activities displayed by cards -->
-		<div class="flex max-h-screen flex-col overflow-auto p-6">
-			{#if gs.honors.length}
-				<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Honors</h2>
-				<div class="flex flex-col gap-1">
-					{#each gs.honors as honor, index}
-						<CaFrHonorCard
-							{honor}
-							isSelected={gs.isSelected({ type: 'honor', index })}
-							onclick={() => gs.selectHonor(index)}
-							onMoveUp={() => {
-								gs.selectHonor(index);
-								gs.moveItemUp();
-							}}
-							onMoveDown={() => {
-								gs.selectHonor(index);
-								gs.moveItemDown();
-							}}
-							onDelete={() => {
-								gs.selectHonor(index);
-								gs.deleteDialog = true;
-							}}
-						/>
-					{/each}
-				</div>
-			{/if}
-
-			{#if gs.honors.length && gs.activities.length}
-				<Separator class="mt-4 mb-6 w-[calc(100%-48px)]" />
-			{/if}
-
-			{#if gs.activities.length && gs.context.id !== 'UC'}
-				<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Activities</h2>
-				<div class="flex flex-col gap-1">
-					{#each gs.activities as activity, index}
-						<CAFrActivityCard
-							{activity}
-							isSelected={gs.isSelected({ type: 'activity', index: index })}
-							onclick={() => gs.selectActivity(index)}
-							onMoveUp={() => {
-								gs.selectActivity(index);
-								gs.moveItemUp();
-							}}
-							onMoveDown={() => {
-								gs.selectActivity(index);
-								gs.moveItemDown();
-							}}
-							onDelete={() => {
-								gs.selectActivity(index);
-								gs.deleteDialog = true;
-							}}
-						/>
-					{/each}
-				</div>
-			{:else if gs.activities.length}
-				<h2 class="px-6 pb-2 text-2xl font-bold">Activities &amp; Awards</h2>
-				<div class="flex flex-col gap-1">
-					{#each gs.activities as activity, index}
-						<UcActivityCard
-							{activity}
-							{index}
-							isSelected={gs.isSelected({ type: 'activity', index: index })}
-							onclick={() => gs.selectActivity(index)}
-							onMoveUp={() => {
-								gs.selectActivity(index);
-								gs.moveItemUp();
-							}}
-							onMoveDown={() => {
-								gs.selectActivity(index);
-								gs.moveItemDown();
-							}}
-							onDelete={() => {
-								gs.selectActivity(index);
-								gs.deleteDialog = true;
-							}}
-						/>
-					{/each}
-				</div>
-			{/if}
-		</div>
-	</Resizable.Pane>
-
-	<Resizable.Handle />
-
-	<Resizable.Pane defaultSize={50} class="bg-zinc-50" minSize={1}>
-		<!-- editor -->
-		<div class="flex max-h-screen flex-col gap-6 py-6">
-			<div class="px-8 font-semibold">
-				{gs.context.name}
-				{#if gs.selection}
-					&bull; {formatSelectedItem(gs.selection)}{/if}
+{#if !gs.context}
+	<div class="flex min-h-screen w-full">
+		<div class="m-auto flex flex-col items-center p-6 pb-12">
+			<h2 class="text-lg font-semibold">Select an application system to start</h2>
+			<div class="text-sm text-zinc-600">You can switch between systems at any point</div>
+			<div class="mx-auto mt-12 flex flex-wrap content-center justify-center-safe gap-12 p-4">
+				<Button
+					variant="outline"
+					class="flex size-[120px] flex-col rounded-xl"
+					onclick={() => (gs.context = 'CA_FRESHMAN')}
+				>
+					<div>Common App<br />First-Year</div>
+				</Button>
+				<Button
+					variant="outline"
+					disabled
+					class="flex size-[120px] flex-col rounded-xl"
+					onclick={() => (gs.context = 'CA_TRANSFER')}
+				>
+					<div>Common App<br />Transfer</div>
+				</Button>
+				<Button
+					variant="outline"
+					class="flex size-[120px] flex-col rounded-xl"
+					onclick={() => (gs.context = 'UC')}
+				>
+					<div>University of<br />California</div>
+				</Button>
+				<Button
+					variant="outline"
+					disabled
+					class="flex size-[120px] flex-col rounded-xl"
+					onclick={() => (gs.context = 'COALITION')}
+				>
+					<div>Coalition</div>
+				</Button>
 			</div>
-			{#if gs.selection?.type === 'honor'}
-				<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
-			{:else if gs.selection?.type === 'activity'}
-				{#if gs.context.id === 'CA_FRESHMAN'}
-					<CaFrActivityForm bind:activity={gs.activities[gs.selection.index]} />
-				{:else if gs.context.id === 'UC'}
-					<UcActivityForm bind:activity={gs.activities[gs.selection.index]} />
-				{/if}
-			{/if}
 		</div>
-	</Resizable.Pane>
-</Resizable.PaneGroup>
+	</div>
+{:else}
+	<Resizable.PaneGroup direction="horizontal" class="min-h-screen w-full rounded-xl">
+		<Resizable.Pane defaultSize={50} minSize={1}>
+			<!-- a list of activities displayed by cards -->
+			<div class="flex max-h-screen flex-col overflow-auto p-6">
+				{#if gs.honors.length}
+					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Honors</h2>
+					<div class="flex flex-col gap-1">
+						{#each gs.honors as honor, index}
+							<CaFrHonorCard
+								{honor}
+								isSelected={gs.isSelected({ type: 'honor', index })}
+								onclick={() => gs.selectHonor(index)}
+								onMoveUp={() => {
+									gs.selectHonor(index);
+									gs.moveItemUp();
+								}}
+								onMoveDown={() => {
+									gs.selectHonor(index);
+									gs.moveItemDown();
+								}}
+								onDelete={() => {
+									gs.selectHonor(index);
+									gs.deleteDialog = true;
+								}}
+							/>
+						{/each}
+					</div>
+				{/if}
+
+				{#if gs.honors.length && gs.activities.length}
+					<Separator class="mt-4 mb-6 w-[calc(100%-48px)]" />
+				{/if}
+
+				{#if gs.activities.length && gs.context.id !== 'UC'}
+					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Activities</h2>
+					<div class="flex flex-col gap-1">
+						{#each gs.activities as activity, index}
+							<CAFrActivityCard
+								{activity}
+								isSelected={gs.isSelected({ type: 'activity', index: index })}
+								onclick={() => gs.selectActivity(index)}
+								onMoveUp={() => {
+									gs.selectActivity(index);
+									gs.moveItemUp();
+								}}
+								onMoveDown={() => {
+									gs.selectActivity(index);
+									gs.moveItemDown();
+								}}
+								onDelete={() => {
+									gs.selectActivity(index);
+									gs.deleteDialog = true;
+								}}
+							/>
+						{/each}
+					</div>
+				{:else if gs.activities.length}
+					<h2 class="px-6 pb-2 text-2xl font-bold">Activities &amp; Awards</h2>
+					<div class="flex flex-col gap-1">
+						{#each gs.activities as activity, index}
+							<UcActivityCard
+								{activity}
+								{index}
+								isSelected={gs.isSelected({ type: 'activity', index: index })}
+								onclick={() => gs.selectActivity(index)}
+								onMoveUp={() => {
+									gs.selectActivity(index);
+									gs.moveItemUp();
+								}}
+								onMoveDown={() => {
+									gs.selectActivity(index);
+									gs.moveItemDown();
+								}}
+								onDelete={() => {
+									gs.selectActivity(index);
+									gs.deleteDialog = true;
+								}}
+							/>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		</Resizable.Pane>
+
+		<Resizable.Handle />
+
+		<Resizable.Pane defaultSize={50} class="bg-zinc-50" minSize={1}>
+			<!-- editor -->
+			<div class="flex max-h-screen flex-col gap-6 py-6">
+				<div class="px-8 font-semibold">
+					{gs.context.name}
+					{#if gs.selection}
+						&bull; {formatSelectedItem(gs.selection)}{/if}
+				</div>
+				{#if gs.selection?.type === 'honor'}
+					<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
+				{:else if gs.selection?.type === 'activity'}
+					{#if gs.context.id === 'CA_FRESHMAN'}
+						<CaFrActivityForm bind:activity={gs.activities[gs.selection.index]} />
+					{:else if gs.context.id === 'UC'}
+						<UcActivityForm bind:activity={gs.activities[gs.selection.index]} />
+					{/if}
+				{/if}
+			</div>
+		</Resizable.Pane>
+	</Resizable.PaneGroup>
+{/if}
 
 <Dialog.Root bind:open={gs.deleteDialog}>
 	<Dialog.Content

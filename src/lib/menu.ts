@@ -1,7 +1,7 @@
 import { Menu, Submenu, MenuItem, CheckMenuItem, PredefinedMenuItem } from '@tauri-apps/api/menu';
-import { gs } from './commands.svelte';
+import type { GlobalState } from '$lib/commands.svelte';
 
-export const buildMenu = async () => {
+export const buildMenu = async (gs: GlobalState) => {
 	const separator = await PredefinedMenuItem.new({
 		item: 'Separator'
 	});
@@ -10,146 +10,149 @@ export const buildMenu = async () => {
 		item: 'Quit'
 	});
 
+	const newFile = await MenuItem.new({
+		id: 'new',
+		text: 'New File',
+		accelerator: 'CmdOrCtrl+N',
+		action: gs.new.bind(gs)
+	});
+	gs.setMenuItem('new-file', newFile);
+
+	const openFile = await MenuItem.new({
+		id: 'open',
+		text: 'Open File...',
+		accelerator: 'CmdOrCtrl+O',
+		action: gs.open.bind(gs)
+	});
+	gs.setMenuItem('open-file', openFile);
+
+	const saveFile = await MenuItem.new({
+		id: 'save',
+		text: 'Save',
+		accelerator: 'CmdOrCtrl+S',
+		action: gs.save.bind(gs)
+	});
+	gs.setMenuItem('save-file', saveFile);
+
+	const saveFileAs = await MenuItem.new({
+		id: 'save_as',
+		text: 'Save As...',
+		accelerator: 'CmdOrCtrl+Shift+S',
+		action: gs.saveAs.bind(gs)
+	});
+	gs.setMenuItem('save-file-as', saveFileAs);
+
 	const fileSubmenu = await Submenu.new({
 		text: 'File',
-		items: [
-			await MenuItem.new({
-				id: 'new',
-				text: 'New File',
-				accelerator: 'CmdOrCtrl+N',
-				action: gs.new.bind(gs)
-			}),
-			await MenuItem.new({
-				id: 'open',
-				text: 'Open File...',
-				accelerator: 'CmdOrCtrl+O',
-				action: gs.open.bind(gs)
-			}),
-			separator,
-			await MenuItem.new({
-				id: 'save',
-				text: 'Save',
-				accelerator: 'CmdOrCtrl+S',
-				action: gs.save.bind(gs)
-			}),
-			await MenuItem.new({
-				id: 'save_as',
-				text: 'Save As...',
-				accelerator: 'CmdOrCtrl+Shift+S',
-				action: gs.saveAs.bind(gs)
-			}),
-			separator,
-			quit
-		]
+		items: [newFile, openFile, separator, saveFile, saveFileAs, separator, quit]
 	});
 
-	const sysMenuItemCAF = await CheckMenuItem.new({
+	const contextCAF = await CheckMenuItem.new({
 		id: 'caf_check',
 		text: 'CA First-Year',
-		action: () => {
-			gs.context = 'CA_FRESHMAN';
-			sysMenuItemCAF.setChecked(true);
-			sysMenuItemCAT.setChecked(false);
-			sysMenuItemUC.setChecked(false);
-			sysMenuItemCL.setChecked(false);
-		},
-		checked: gs.context.id === 'CA_FRESHMAN'
+		action: () => (gs.context = 'CA_FRESHMAN')
 	});
-	const sysMenuItemCAT = await CheckMenuItem.new({
+	gs.setCheckMenuItems('context-caf', contextCAF);
+
+	const contextCAT = await CheckMenuItem.new({
 		id: 'cat_check',
 		text: 'CA Transfer',
-		action: () => {
-			gs.context = 'CA_TRANSFER';
-			sysMenuItemCAF.setChecked(false);
-			sysMenuItemCAT.setChecked(true);
-			sysMenuItemUC.setChecked(false);
-			sysMenuItemCL.setChecked(false);
-		},
-		checked: gs.context.id === 'CA_TRANSFER',
+		action: () => (gs.context = 'CA_TRANSFER'),
 		enabled: false
 	});
-	const sysMenuItemUC = await CheckMenuItem.new({
+	gs.setCheckMenuItems('context-cat', contextCAT);
+
+	const contextUC = await CheckMenuItem.new({
 		id: 'uc_check',
 		text: 'UC',
-		action: () => {
-			gs.context = 'UC';
-			sysMenuItemCAF.setChecked(false);
-			sysMenuItemCAT.setChecked(false);
-			sysMenuItemUC.setChecked(true);
-			sysMenuItemCL.setChecked(false);
-		},
-		checked: gs.context.id === 'UC'
+		action: () => (gs.context = 'UC')
 	});
-	const sysMenuItemCL = await CheckMenuItem.new({
+	gs.setCheckMenuItems('context-uc', contextUC);
+
+	const contextCL = await CheckMenuItem.new({
 		id: 'cl_check',
 		text: 'Coalition',
-		action: () => {
-			gs.context = 'COALITION';
-			sysMenuItemCAF.setChecked(false);
-			sysMenuItemCAT.setChecked(false);
-			sysMenuItemUC.setChecked(false);
-			sysMenuItemCL.setChecked(true);
-		},
-		checked: gs.context.id === 'COALITION',
+		action: () => (gs.context = 'COALITION'),
 		enabled: false
 	});
+	gs.setCheckMenuItems('context-cl', contextCL);
 
 	const systemMenu = await Submenu.new({
 		text: 'System',
-		items: [sysMenuItemCAF, sysMenuItemCAT, sysMenuItemUC, sysMenuItemCL]
+		items: [contextCAF, contextCAT, contextUC, contextCL]
 	});
+
+	const nextItem = await MenuItem.new({
+		id: 'next_item',
+		text: 'Next',
+		accelerator: 'CmdOrCtrl+Down',
+		action: gs.selectNext.bind(gs)
+	});
+	gs.setMenuItem('next-item', nextItem);
+
+	const prevItem = await MenuItem.new({
+		id: 'previous_item',
+		text: 'Previous',
+		accelerator: 'CmdOrCtrl+Up',
+		action: gs.selectPrevious.bind(gs)
+	});
+	gs.setMenuItem('prev-item', prevItem);
+
+	const newActivity = await MenuItem.new({
+		id: 'new_activity',
+		text: 'New Activity',
+		accelerator: 'CmdOrCtrl+Shift+A',
+		action: gs.newActivity.bind(gs)
+	});
+	gs.setMenuItem('new-activity', newActivity);
+
+	const newHonor = await MenuItem.new({
+		id: 'new_honor',
+		text: 'New Honor',
+		accelerator: 'CmdOrCtrl+Shift+H',
+		action: gs.newHonor.bind(gs)
+	});
+	gs.setMenuItem('new-honor', newHonor);
+
+	const moveUp = await MenuItem.new({
+		id: 'move_up',
+		text: 'Move Up',
+		accelerator: 'CmdOrCtrl+Shift+Up',
+		action: gs.moveItemUp.bind(gs)
+	});
+	gs.setMenuItem('move-up', moveUp);
+
+	const moveDown = await MenuItem.new({
+		id: 'move_down',
+		text: 'Move Down',
+		accelerator: 'CmdOrCtrl+Shift+Down',
+		action: gs.moveItemDown.bind(gs)
+	});
+	gs.setMenuItem('move-down', moveDown);
+
+	const deleteSelected = await MenuItem.new({
+		id: 'delete_selected',
+		text: 'Delete...',
+		accelerator: 'CmdOrCtrl+Delete',
+		action: () => {
+			if (gs.selection) gs.deleteDialog = true;
+		}
+	});
+	gs.setMenuItem('delete', deleteSelected);
 
 	const activityMenu = await Submenu.new({
 		text: 'Items',
 		items: [
-			await MenuItem.new({
-				id: 'next_item',
-				text: 'Next',
-				accelerator: 'CmdOrCtrl+Down',
-				action: gs.selectNext.bind(gs)
-			}),
-			await MenuItem.new({
-				id: 'previous_item',
-				text: 'Previous',
-				accelerator: 'CmdOrCtrl+Up',
-				action: gs.selectPrevious.bind(gs)
-			}),
+			nextItem,
+			prevItem,
 			separator,
-			await MenuItem.new({
-				id: 'new_activity',
-				text: 'New Activity',
-				accelerator: 'CmdOrCtrl+Shift+A',
-				action: gs.newActivity.bind(gs)
-			}),
-			await MenuItem.new({
-				id: 'new_honor',
-				text: 'New Honor',
-				accelerator: 'CmdOrCtrl+Shift+H',
-				action: gs.newHonor.bind(gs)
-			}),
+			newActivity,
+			newHonor,
 			separator,
-			await MenuItem.new({
-				id: 'move_up',
-				text: 'Move Up',
-				accelerator: 'CmdOrCtrl+Shift+Up',
-				action: gs.moveItemUp.bind(gs)
-			}),
-			await MenuItem.new({
-				id: 'move_down',
-				text: 'Move Down',
-				accelerator: 'CmdOrCtrl+Shift+Down',
-				action: gs.moveItemDown.bind(gs)
-			}),
+			moveUp,
+			moveDown,
 			separator,
-
-			await MenuItem.new({
-				id: 'delete_activity',
-				text: 'Delete...',
-				accelerator: 'CmdOrCtrl+Delete',
-				action: () => {
-					if (gs.selection) gs.deleteDialog = true;
-				}
-			})
+			deleteSelected
 		]
 	});
 
