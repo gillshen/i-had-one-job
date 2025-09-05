@@ -5,6 +5,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { SquarePen } from '@lucide/svelte';
 
 	// global state
 	import { gs, type Selection as SelectedItem } from '$lib/commands.svelte';
@@ -37,31 +38,39 @@
 			<div class="mx-auto mt-12 flex flex-wrap content-center justify-center-safe gap-12 p-4">
 				<Button
 					variant="outline"
-					class="flex size-[120px] flex-col rounded-xl"
-					onclick={() => (gs.context = 'CA_FRESHMAN')}
+					class="flex size-[140px] flex-col rounded-xl"
+					onclick={() => {
+						gs.context = 'CA_FRESHMAN';
+					}}
 				>
 					<div>Common App<br />First-Year</div>
 				</Button>
 				<Button
 					variant="outline"
 					disabled
-					class="flex size-[120px] flex-col rounded-xl"
-					onclick={() => (gs.context = 'CA_TRANSFER')}
+					class="flex size-[140px] flex-col rounded-xl"
+					onclick={() => {
+						gs.context = 'CA_TRANSFER';
+					}}
 				>
 					<div>Common App<br />Transfer</div>
 				</Button>
 				<Button
 					variant="outline"
-					class="flex size-[120px] flex-col rounded-xl"
-					onclick={() => (gs.context = 'UC')}
+					class="flex size-[140px] flex-col rounded-xl"
+					onclick={() => {
+						gs.context = 'UC';
+					}}
 				>
 					<div>University of<br />California</div>
 				</Button>
 				<Button
 					variant="outline"
 					disabled
-					class="flex size-[120px] flex-col rounded-xl"
-					onclick={() => (gs.context = 'COALITION')}
+					class="flex size-[140px] flex-col rounded-xl"
+					onclick={() => {
+						gs.context = 'COALITION';
+					}}
 				>
 					<div>Coalition</div>
 				</Button>
@@ -73,7 +82,7 @@
 		<Resizable.Pane defaultSize={50} minSize={1}>
 			<!-- a list of activities displayed by cards -->
 			<div class="flex max-h-screen flex-col overflow-auto p-6">
-				{#if gs.honors.length}
+				{#if gs.context.id === 'CA_FRESHMAN'}
 					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Honors</h2>
 					<div class="flex flex-col gap-1">
 						{#each gs.honors as honor, index}
@@ -95,14 +104,15 @@
 								}}
 							/>
 						{/each}
+						<div class="flex justify-center px-6 py-2 pt-4">
+							<Button variant="outline" class="w-32 rounded-full" onclick={gs.newHonor.bind(gs)}
+								>Add Honor</Button
+							>
+						</div>
 					</div>
-				{/if}
 
-				{#if gs.honors.length && gs.activities.length}
 					<Separator class="mt-4 mb-6 w-[calc(100%-48px)]" />
-				{/if}
 
-				{#if gs.activities.length && gs.context.id !== 'UC'}
 					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Activities</h2>
 					<div class="flex flex-col gap-1">
 						{#each gs.activities as activity, index}
@@ -124,8 +134,13 @@
 								}}
 							/>
 						{/each}
+						<div class="flex justify-center px-6 py-2 pt-4">
+							<Button variant="outline" class="w-32 rounded-full" onclick={gs.newActivity.bind(gs)}
+								>Add Activity</Button
+							>
+						</div>
 					</div>
-				{:else if gs.activities.length}
+				{:else if gs.context.id === 'UC'}
 					<h2 class="px-6 pb-2 text-2xl font-bold">Activities &amp; Awards</h2>
 					<div class="flex flex-col gap-1">
 						{#each gs.activities as activity, index}
@@ -148,6 +163,11 @@
 								}}
 							/>
 						{/each}
+						<div class="flex justify-center px-6 py-2 pt-4">
+							<Button variant="outline" class="w-48 rounded-full" onclick={gs.newActivity.bind(gs)}
+								>Add Activity or Award</Button
+							>
+						</div>
 					</div>
 				{/if}
 			</div>
@@ -157,11 +177,14 @@
 
 		<Resizable.Pane defaultSize={50} class="bg-zinc-50" minSize={1}>
 			<!-- editor -->
-			<div class="flex max-h-screen flex-col gap-6 py-6">
-				<div class="px-8 font-semibold">
-					{gs.context.name}
-					{#if gs.selection}
-						&bull; {formatSelectedItem(gs.selection)}{/if}
+			<div class="flex max-h-screen flex-col">
+				<div class="flex items-center gap-3 border-b-[1px] px-8 py-4 font-semibold">
+					<SquarePen class="size-4" />
+					<div>
+						{gs.context.name}
+						{#if gs.selection}
+							&bull; {formatSelectedItem(gs.selection)}{/if}
+					</div>
 				</div>
 				{#if gs.selection?.type === 'honor'}
 					<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />

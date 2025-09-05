@@ -58,7 +58,7 @@
 	];
 </script>
 
-<form class="flex flex-grow flex-col gap-6 overflow-auto px-8 py-4 text-sm">
+<form class="flex flex-grow flex-col gap-6 overflow-auto px-8 pt-4 pb-8 text-sm">
 	<div class="flex flex-col gap-2">
 		<Label for="type">Activity type</Label>
 		<Select.Root type="single" name="type" bind:value={activity.type}>

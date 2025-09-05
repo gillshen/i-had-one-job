@@ -100,7 +100,7 @@ export const buildMenu = async (gs: GlobalState) => {
 
 	const newActivity = await MenuItem.new({
 		id: 'new_activity',
-		text: 'New Activity',
+		text: 'Add Activity',
 		accelerator: 'CmdOrCtrl+Shift+A',
 		action: gs.newActivity.bind(gs)
 	});
@@ -108,7 +108,7 @@ export const buildMenu = async (gs: GlobalState) => {
 
 	const newHonor = await MenuItem.new({
 		id: 'new_honor',
-		text: 'New Honor',
+		text: 'Add Honor',
 		accelerator: 'CmdOrCtrl+Shift+H',
 		action: gs.newHonor.bind(gs)
 	});
