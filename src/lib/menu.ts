@@ -168,7 +168,7 @@ export const buildMenu = async (gs: GlobalState) => {
 			await gs.open();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
 			e.preventDefault();
-			gs.new();
+			await gs.new();
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
 			e.preventDefault();
 			gs.newActivity();

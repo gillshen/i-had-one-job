@@ -3,12 +3,14 @@ import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs
 import { APPLICATION_SYSTEMS, newActivity, newHonor } from './applicationSystems';
 import type { CheckMenuItem, MenuItem } from '@tauri-apps/api/menu';
 
-type ItemType = 'activity' | 'honor';
-
 export type Selection = {
-	type: ItemType;
+	type: 'activity' | 'honor';
 	index: number;
 };
+
+type ContextKey = keyof typeof APPLICATION_SYSTEMS;
+
+type PendingOperation = { op: 'new' } | { op: 'open' } | { op: 'context'; arg: ContextKey } | null;
 
 export class GlobalState {
 	private _menuItems: Record<string, MenuItem> = {};
@@ -19,6 +21,20 @@ export class GlobalState {
 	private _filePath: string = $state('');
 	private _selection: Selection | null = $state(null);
 	private _deleteDialog: boolean = $state(false);
+
+	private _pendingOperation: PendingOperation = $state(null);
+	private _askSaveDialog: boolean = $state(false);
+	private _savedActivities: Activity[] = $state([]);
+	private _savedHonors: Honor[] = $state([]);
+	private _hasUnsavedChanges = $derived(
+		!(
+			this.arraysEqual(this.activities, this._savedActivities) &&
+			this.arraysEqual(this.honors, this._savedHonors)
+		)
+	);
+
+	private _error: string = $state('');
+	private _errorDialog: boolean = $state(false);
 
 	setMenuItem(id: string, item: MenuItem) {
 		this._menuItems[id] = item;
@@ -60,10 +76,9 @@ export class GlobalState {
 		return this._context;
 	}
 
-	set context(key: keyof typeof APPLICATION_SYSTEMS) {
+	set context(key: ContextKey) {
 		if (key === this.context?.id) return;
-		this.new();
-		this._context = APPLICATION_SYSTEMS[key];
+		this.tryOperation({ op: 'context', arg: key }).then().catch(console.error);
 	}
 
 	get activities() {
@@ -106,33 +121,95 @@ export class GlobalState {
 		this._deleteDialog = value;
 	}
 
+	get askSaveDialog() {
+		return this._askSaveDialog;
+	}
+
+	set askSaveDialog(value: boolean) {
+		this._askSaveDialog = value;
+	}
+
+	get hasUnsavedChanges() {
+		return this._hasUnsavedChanges;
+	}
+
+	get error() {
+		return this._error;
+	}
+
+	set error(value: string) {
+		this._error = value;
+	}
+
+	get errorDialog() {
+		return this._errorDialog;
+	}
+
+	set errorDialog(value: boolean) {
+		this._errorDialog = value;
+	}
+
 	isSelected(test: Selection | null) {
 		return this.selection?.type === test?.type && this.selection?.index === test?.index;
 	}
 
-	new() {
-		// TODO check if there is unsaved data
-		// if yes, prompt the user to save
+	private async tryOperation(operation: PendingOperation) {
+		this._pendingOperation = operation;
+		if (this.hasUnsavedChanges) {
+			this.askSaveDialog = true;
+			return;
+		}
+		await this.executePendingOperation();
+	}
+
+	async executePendingOperation() {
+		switch (this._pendingOperation?.op) {
+			case 'new':
+				this._new();
+				break;
+			case 'open':
+				await this._open();
+				break;
+			case 'context':
+				this._new();
+				this._context = APPLICATION_SYSTEMS[this._pendingOperation.arg];
+				break;
+		}
+		this._pendingOperation = null;
+	}
+
+	async new() {
+		await this.tryOperation({ op: 'new' });
+	}
+
+	private _new() {
 		this.filePath = '';
 		this.activities = [];
 		this.honors = [];
+		this.updateSnapshots();
 		this.clearSelection();
 	}
 
 	async open() {
+		await this.tryOperation({ op: 'open' });
+	}
+
+	private async _open() {
 		if (!this.context) return;
+		console.log('getting file path');
 		const filePath = (await getOpenFilePath(this.context.fileFilter)) ?? '';
+		console.log(`filePath='${filePath}'`);
 		if (!filePath) return;
 		try {
 			const data = await openFile(filePath, { parser: this.context.parser });
 			this.activities = data.activities;
 			this.honors = data.honors;
 			this.filePath = filePath;
-			this.selection = null;
+			this.updateSnapshots();
+			this.clearSelection();
 		} catch (e) {
-			// TODO handle error properly
-			this.filePath = `error: ${e}`;
-			throw e;
+			this.error = `${e}`;
+			this.errorDialog = true;
 		}
 	}
 
@@ -143,10 +220,16 @@ export class GlobalState {
 			await this.saveAs();
 			return;
 		}
-		await saveFile(
-			this.filePath,
-			this.context.serialize({ activities: this.activities, honors: this.honors })
-		);
+		try {
+			await saveFile(
+				this.filePath,
+				this.context.serialize({ activities: this.activities, honors: this.honors })
+			);
+			this.updateSnapshots();
+		} catch (e: unknown) {
+			this.error = `${e}`;
+			this.errorDialog = true;
+		}
 	}
 
 	async saveAs() {
@@ -178,7 +261,6 @@ export class GlobalState {
 		if (!this.activities.length) return;
 		const safeIndex = Math.max(0, Math.min(index, this.activities.length - 1));
 		this.selection = { type: 'activity', index: safeIndex };
-		console.log(`${this.selection?.type} ${this.selection?.index}`);
 	}
 
 	selectHonor(index: number) {
@@ -292,6 +374,46 @@ export class GlobalState {
 			this.activities = [...head.concat(tail)];
 		}
 		this.selection = null;
+	}
+
+	arraysEqual(a: Record<string, unknown>[], b: Record<string, unknown>[]): boolean {
+		if (a.length !== b.length) return false;
+		return a.every((item, index) => {
+			const otherItem = b[index];
+			// Get all unique keys from both objects
+			const allKeys = new Set([...Object.keys(item), ...Object.keys(otherItem)]);
+			// Check that every key has the same value in both objects
+			return Array.from(allKeys).every(
+				(key) => JSON.stringify(item[key]) === JSON.stringify(otherItem[key])
+			);
+		});
+	}
+
+	private deepCopy<T>(obj: T): T {
+		if (obj === null || typeof obj !== 'object') {
+			return obj;
+		}
+		if (obj instanceof Set) {
+			return new Set(Array.from(obj)) as T;
+		}
+		if (Array.isArray(obj)) {
+			return obj.map((item) => this.deepCopy(item)) as T;
+		}
+		const copy = {} as T;
+		Object.keys(obj).forEach((key) => {
+			copy[key as keyof T] = this.deepCopy(obj[key as keyof T]);
+		});
+		return copy;
+	}
+
+	private updateSnapshots() {
+		this._savedActivities = this.deepCopy(this.activities);
+		this._savedHonors = this.deepCopy(this.honors);
+	}
+
+	rollbackChanges() {
+		this.activities = this.deepCopy(this._savedActivities);
+		this.honors = this.deepCopy(this._savedHonors);
 	}
 }
 

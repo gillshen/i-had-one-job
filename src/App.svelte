@@ -24,7 +24,8 @@
 
 	$effect(() => {
 		const appName = 'Activity List Editor';
-		const title = gs.filePath ? `${appName} | ${gs.filePath}` : appName;
+		const fileName = gs.filePath.split('\\').pop() || 'Untitled';
+		const title = `${gs.hasUnsavedChanges ? '* ' : ''}${fileName} - ${appName}`;
 		getCurrentWindow().setTitle(title).then().catch(console.log);
 		gs.updateMenuItems();
 	});
@@ -204,26 +205,90 @@
 	<Dialog.Content
 		class="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg"
 	>
-		<Dialog.Title class="mb-4 text-lg font-semibold">Confirm Deletion</Dialog.Title>
+		<Dialog.Title class="mb-0 text-lg font-semibold">Confirm Deletion</Dialog.Title>
 		{#if gs.selection}
 			<Dialog.Description class="mb-6 text-sm text-zinc-600">
 				Are you sure you want to delete {formatSelectedItem(gs.selection)}? This action cannot be
 				undone.
 			</Dialog.Description>
 		{/if}
-		<div class="flex justify-end space-x-4">
-			<Button type="button" variant="outline" onclick={() => (gs.deleteDialog = false)}>
+		<div class="flex justify-center space-x-4">
+			<Button
+				type="button"
+				variant="outline"
+				class="min-w-24 rounded-full"
+				onclick={() => (gs.deleteDialog = false)}
+			>
 				Cancel
 			</Button>
 			<Button
 				type="button"
 				variant="destructive"
+				class="min-w-24 rounded-full"
 				onclick={() => {
 					gs.deleteSelected();
 					gs.deleteDialog = false;
 				}}
 			>
 				Delete
+			</Button>
+		</div>
+	</Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={gs.askSaveDialog}>
+	<Dialog.Content
+		class="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg"
+	>
+		<Dialog.Title class="mb-0 text-lg font-semibold">You have unsaved changes</Dialog.Title>
+		<Dialog.Description class="mb-6 text-sm text-zinc-600">
+			Do you want to discard them?
+		</Dialog.Description>
+		<div class="flex justify-center space-x-4">
+			<Button
+				type="button"
+				variant="outline"
+				class="min-w-32 rounded-full"
+				onclick={() => {
+					gs.askSaveDialog = false;
+					// fix inconsistent menu display
+					gs.updateMenuItems();
+				}}
+			>
+				No, take me back
+			</Button>
+			<Button
+				type="button"
+				variant="destructive"
+				class="min-w-32 rounded-full"
+				onclick={async () => {
+					gs.rollbackChanges();
+					gs.askSaveDialog = false;
+					await gs.executePendingOperation();
+				}}
+			>
+				Yes, discard them
+			</Button>
+		</div>
+	</Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={gs.errorDialog}>
+	<Dialog.Content
+		class="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg"
+	>
+		<Dialog.Title class="mb-0 text-lg font-semibold">Sorry, an error occurred</Dialog.Title>
+		<Dialog.Description class="mb-6 text-sm text-zinc-600">
+			{gs.error}
+		</Dialog.Description>
+		<div class="flex justify-center space-x-4">
+			<Button
+				type="button"
+				variant="secondary"
+				class="min-w-24 rounded-full"
+				onclick={() => (gs.errorDialog = false)}
+			>
+				Close
 			</Button>
 		</div>
 	</Dialog.Content>
