@@ -1,24 +1,36 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import CharLimitSpan from '$lib/components/CharLimitSpan.svelte';
+	import Comments from '$lib/components/Comments.svelte';
 	import { MoveUp, MoveDown, Trash } from '@lucide/svelte';
 	import type { Honor } from '$lib/types';
 	import { orderGradeLevels, orderRecognitions } from '$lib/utils/sorting';
 
 	type Props = {
 		honor: Honor;
+		previewMode?: boolean;
 		isSelected: boolean;
 		onclick: () => void;
 		onMoveUp: () => void;
 		onMoveDown: () => void;
 		onDelete: () => void;
 	};
-	let { honor, isSelected: selected, onclick, onMoveUp, onMoveDown, onDelete }: Props = $props();
+	let {
+		honor,
+		previewMode: preview = false,
+		isSelected: selected,
+		onclick,
+		onMoveUp,
+		onMoveDown,
+		onDelete
+	}: Props = $props();
 
-	const formatGradeLevels = (gradeLevels: Set<string>): string => {
-		const arr = Array.from(gradeLevels).sort(orderGradeLevels);
-		return arr.join(', ');
-	};
+	const formatGradeLevels = (gradeLevels: Set<string>): string =>
+		Array.from(gradeLevels)
+			.sort(orderGradeLevels)
+			.map((grade) => (grade === 'pg' ? 'Post-graduate' : grade))
+			.join(', ');
 
 	const formatRecognitionLevels = (recLevels: Set<string>): string => {
 		return Array.from(recLevels)
@@ -46,7 +58,10 @@
 </script>
 
 <Card.Root
-	class={['card group cursor-default gap-0 py-4 text-sm shadow-none', { selected }]}
+	class={[
+		'card common-app group cursor-default gap-0 py-4 text-sm shadow-none',
+		{ selected, preview }
+	]}
 	{onclick}
 >
 	<Card.Content class="my-0 flex flex-col py-0">
@@ -54,51 +69,53 @@
 			<div class="min-w-0 font-medium">{honor.order}</div>
 			<div class="flex min-w-0 flex-col gap-2">
 				<div class="font-medium">
-					<span>{honor.title.slice(0, 100)}</span><span class="over-limit"
-						>{honor.title.slice(100)}</span
-					>
+					<CharLimitSpan text={honor.title} charLimit={100} />
 				</div>
-				{#if honor.comments}
-					<div class="col-span-2 text-red-600">{honor.comments}</div>
-				{/if}
 			</div>
 			<div class="min-w-0">{formatRecognitionLevels(honor.level_of_recognition)}</div>
 			<div class="min-w-0">{formatGradeLevels(honor.grade_level)}</div>
 			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
-				<Button
-					onclick={(e) => {
-						e.stopPropagation();
-						onMoveUp();
-					}}
-					variant="ghost"
-					size="icon"
-					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
-				>
-					<MoveUp class="size-3" />
-				</Button>
-				<Button
-					onclick={(e) => {
-						e.stopPropagation();
-						onMoveDown();
-					}}
-					variant="ghost"
-					size="icon"
-					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
-				>
-					<MoveDown class="size-3" />
-				</Button>
-				<Button
-					onclick={(e) => {
-						e.stopPropagation();
-						onDelete();
-					}}
-					variant="ghost"
-					size="icon"
-					class="size-6 cursor-pointer rounded-full hover:bg-white hover:text-red-600 hover:shadow-md"
-				>
-					<Trash class="size-3" />
-				</Button>
+				{#if !preview}
+					<Button
+						onclick={(e) => {
+							e.stopPropagation();
+							onMoveUp();
+						}}
+						variant="ghost"
+						size="icon"
+						class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+					>
+						<MoveUp class="size-3" />
+					</Button>
+					<Button
+						onclick={(e) => {
+							e.stopPropagation();
+							onMoveDown();
+						}}
+						variant="ghost"
+						size="icon"
+						class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+					>
+						<MoveDown class="size-3" />
+					</Button>
+					<Button
+						onclick={(e) => {
+							e.stopPropagation();
+							onDelete();
+						}}
+						variant="ghost"
+						size="icon"
+						class="size-6 cursor-pointer rounded-full hover:bg-white hover:text-red-600 hover:shadow-md"
+					>
+						<Trash class="size-3" />
+					</Button>
+				{/if}
 			</div>
+			{#if honor.comments && !preview}
+				<div class="col-span-3 col-start-2">
+					<Comments text={honor.comments} />
+				</div>
+			{/if}
 		</div>
 	</Card.Content>
 </Card.Root>

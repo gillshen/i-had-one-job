@@ -161,12 +161,22 @@ label {
 .card {
 	border-color: transparent;
 	border-width: 2px;
+	overflow-x: auto;
 }
 .card.selected {
 	border-color: oklch(70.7% 0.165 254.624);
 }
-.card:hover {
+.card:not(.preview):hover {
 	background-color: oklch(96.7% 0.001 286.375);
+}
+
+.card.preview {
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+	border-radius: 0;
+}
+.card.preview.selected {
+	border-color: transparent;
 }
 
 .char-limit {
@@ -180,6 +190,9 @@ span.missing,
 span.over-limit {
 	background-color: oklch(88.5% 0.062 18.334);
 	border-radius: var(--radius-sm);
+}
+.card.preview span.over-limit {
+	display: none;
 }
 
 .uc-helper {

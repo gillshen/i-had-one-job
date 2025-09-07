@@ -21,6 +21,8 @@ export class GlobalState {
 	private _filePath: string = $state('');
 	private _selection: Selection | null = $state(null);
 	private _deleteDialog: boolean = $state(false);
+	private _previewMode: boolean = $state(false);
+	private _compactMode: boolean = $state(false); // for UC
 
 	private _pendingOperation: PendingOperation = $state(null);
 	private _askSaveDialog: boolean = $state(false);
@@ -57,19 +59,26 @@ export class GlobalState {
 		this._checkMenuItems['context-uc']?.setChecked(this.context?.id === 'UC');
 		this._checkMenuItems['context-cl']?.setChecked(this.context?.id === 'COALITION');
 
+		// set preview/compact mode toggle state
+		this._checkMenuItems['preview']?.setChecked(!!this.previewMode);
+		this._checkMenuItems['compact']?.setChecked(!!this.compactMode);
+		this._checkMenuItems['compact']?.setEnabled(this.context?.id === 'UC');
+
 		// disable next/prev navigation unless there is at least one item
 		this._menuItems['next-item']?.setEnabled(!!this.activities.length || !!this.honors.length);
 		this._menuItems['prev-item']?.setEnabled(!!this.activities.length || !!this.honors.length);
 
-		// disable creation of new activities unless context is set
-		this._menuItems['new-activity']?.setEnabled(!!this.context);
-		// disable creation of new honors unless context is common app first-year
-		this._menuItems['new-honor']?.setEnabled(this.context?.id === 'CA_FRESHMAN');
+		// disable creation of new activities unless context is set and not in preview mode
+		this._menuItems['new-activity']?.setEnabled(!!this.context && !this.previewMode);
+		// disable creation of new honors unless context is common app first-year and not in preview mode
+		this._menuItems['new-honor']?.setEnabled(
+			this.context?.id === 'CA_FRESHMAN' && !this.previewMode
+		);
 
-		// disable moving and deleting items unless one is selected
-		this._menuItems['move-up']?.setEnabled(!!this.selection);
-		this._menuItems['move-down']?.setEnabled(!!this.selection);
-		this._menuItems['delete']?.setEnabled(!!this.selection);
+		// enable moving and deleting items if an item is selected and not in preview mode
+		this._menuItems['move-up']?.setEnabled(!!this.selection && !this.previewMode);
+		this._menuItems['move-down']?.setEnabled(!!this.selection && !this.previewMode);
+		this._menuItems['delete']?.setEnabled(!!this.selection && !this.previewMode);
 	}
 
 	get context(): Context | null {
@@ -119,6 +128,25 @@ export class GlobalState {
 
 	set deleteDialog(value: boolean) {
 		this._deleteDialog = value;
+	}
+
+	get previewMode() {
+		return this._previewMode;
+	}
+
+	set previewMode(value: boolean) {
+		this._previewMode = value;
+		if (value) {
+			this.clearSelection();
+		}
+	}
+
+	get compactMode() {
+		return this._compactMode;
+	}
+
+	set compactMode(value: boolean) {
+		this._compactMode = value;
 	}
 
 	get askSaveDialog() {
@@ -196,9 +224,7 @@ export class GlobalState {
 
 	private async _open() {
 		if (!this.context) return;
-		console.log('getting file path');
 		const filePath = (await getOpenFilePath(this.context.fileFilter)) ?? '';
-		console.log(`filePath='${filePath}'`);
 		if (!filePath) return;
 		try {
 			const data = await openFile(filePath, { parser: this.context.parser });
@@ -312,7 +338,7 @@ export class GlobalState {
 
 	moveItemUp() {
 		const selection = this.selection;
-		if (!selection || selection.index === 0) return;
+		if (!selection || selection.index === 0 || this.previewMode) return;
 
 		const array = selection.type === 'honor' ? [...this.honors] : [...this.activities];
 		if (array.length < 2) return;
@@ -337,7 +363,7 @@ export class GlobalState {
 
 	moveItemDown() {
 		const selection = this.selection;
-		if (!selection) return;
+		if (!selection || this.previewMode) return;
 
 		const array = selection.type === 'honor' ? [...this.honors] : [...this.activities];
 		if (selection.index >= array.length - 1) return;
@@ -361,7 +387,7 @@ export class GlobalState {
 	}
 
 	deleteSelected() {
-		if (!this.selection) return;
+		if (!this.selection || this.previewMode) return;
 
 		const index = this.selection.index;
 		if (this.selection.type === 'honor') {

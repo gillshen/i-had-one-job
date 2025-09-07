@@ -44,13 +44,13 @@
 					class="flex max-h-[500px] w-fit max-w-prose flex-col gap-4 overflow-auto text-sm"
 				>
 					<section class="flex flex-col gap-1">
-						<h3 class="text-base font-medium">Award or honor</h3>
+						<h3 class="text-base font-semibold">Award or honor</h3>
 						<p>
 							We want to know about the awards and honors you've received that mean the most to you.
 						</p>
 					</section>
 					<section class="flex flex-col gap-1">
-						<h3 class="text-base font-medium">Educational preparation programs</h3>
+						<h3 class="text-base font-semibold">Educational preparation programs</h3>
 						<p>
 							Any programs or activities that have enriched your academic experiences or helped you
 							prepare for college. Programs can include counseling, tutoring, research opportunities
@@ -58,14 +58,14 @@
 						</p>
 					</section>
 					<section class="flex flex-col gap-1">
-						<h3 class="text-base font-medium">Extracurricular activity</h3>
+						<h3 class="text-base font-semibold">Extracurricular activity</h3>
 						<p>
 							These could include hobbies, clubs, sports or anything else you haven't had the chance
 							to tell us about.
 						</p>
 					</section>
 					<section class="flex flex-col gap-1">
-						<h3 class="text-base font-medium">Other coursework</h3>
+						<h3 class="text-base font-semibold">Other coursework</h3>
 						<p>
 							These are courses other than those required for UC admission (courses that do not fit
 							in UC's A-G subject areas). UC's A-G subject areas include history/social science,
@@ -77,11 +77,11 @@
 						</p>
 					</section>
 					<section class="flex flex-col gap-1">
-						<h3 class="text-base font-medium">Volunteering / Community service</h3>
+						<h3 class="text-base font-semibold">Volunteering / Community service</h3>
 						<p>These are activities you've donated time and effort to without getting paid.</p>
 					</section>
 					<section class="flex flex-col gap-1">
-						<h3 class="text-base font-medium">Work experience</h3>
+						<h3 class="text-base font-semibold">Work experience</h3>
 						<p>
 							This is for telling us about any paid jobs or paid internships you've had. If you had
 							an unpaid internship, enter it under the volunteer/community service category.

@@ -70,11 +70,7 @@ const parseUCWorkHours = <T extends { work_hours: string }>(
 				.split('|')
 				.map((entry) => {
 					const [grade, school, summer] = entry.split(',');
-					return {
-						grade,
-						school: isNaN(Number(school)) ? null : Number(school),
-						summer: isNaN(Number(summer)) ? null : Number(summer)
-					};
+					return { grade, school, summer };
 				}) ?? []
 	};
 };

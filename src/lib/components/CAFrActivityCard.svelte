@@ -1,19 +1,30 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import CharLimitSpan from '$lib/components/CharLimitSpan.svelte';
+	import Comments from '$lib/components/Comments.svelte';
 	import { MoveUp, MoveDown, Trash } from '@lucide/svelte';
 	import type { Activity } from '$lib/types';
 	import { orderGradeLevels, orderTimings } from '$lib/utils/sorting';
 
 	type Props = {
 		activity: Activity;
+		previewMode?: boolean;
 		isSelected: boolean;
 		onclick: () => void;
 		onMoveUp: () => void;
 		onMoveDown: () => void;
 		onDelete: () => void;
 	};
-	let { activity, isSelected: selected, onclick, onMoveUp, onMoveDown, onDelete }: Props = $props();
+	let {
+		activity,
+		previewMode: preview = false,
+		isSelected: selected,
+		onclick,
+		onMoveUp,
+		onMoveDown,
+		onDelete
+	}: Props = $props();
 
 	const formatGradeLevels = (gradeLevels: Set<string>): string => {
 		const arr = Array.from(gradeLevels).sort(orderGradeLevels);
@@ -44,7 +55,10 @@
 </script>
 
 <Card.Root
-	class={['card group cursor-default gap-0 py-4 text-sm shadow-none', { selected }]}
+	class={[
+		'card common-app group cursor-default gap-0 py-4 text-sm shadow-none',
+		{ selected, preview }
+	]}
 	{onclick}
 >
 	<Card.Header class="mb-0 pb-0">
@@ -52,41 +66,43 @@
 			<div class="text-lg font-semibold text-[#0B6DBD]">
 				{activity.order}. {activity.type}
 			</div>
-			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
-				<Button
-					onclick={(e) => {
-						e.stopPropagation();
-						onMoveUp();
-					}}
-					variant="ghost"
-					size="icon"
-					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
-				>
-					<MoveUp class="size-3" />
-				</Button>
-				<Button
-					onclick={(e) => {
-						e.stopPropagation();
-						onMoveDown();
-					}}
-					variant="ghost"
-					size="icon"
-					class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
-				>
-					<MoveDown class="size-3" />
-				</Button>
-				<Button
-					onclick={(e) => {
-						e.stopPropagation();
-						onDelete();
-					}}
-					variant="ghost"
-					size="icon"
-					class="size-6 cursor-pointer rounded-full hover:bg-white hover:text-red-600 hover:shadow-md"
-				>
-					<Trash class="size-3" />
-				</Button>
-			</div>
+			{#if !preview}
+				<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
+					<Button
+						onclick={(e) => {
+							e.stopPropagation();
+							onMoveUp();
+						}}
+						variant="ghost"
+						size="icon"
+						class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+					>
+						<MoveUp class="size-3" />
+					</Button>
+					<Button
+						onclick={(e) => {
+							e.stopPropagation();
+							onMoveDown();
+						}}
+						variant="ghost"
+						size="icon"
+						class="size-6 cursor-pointer rounded-full hover:bg-white hover:shadow-md"
+					>
+						<MoveDown class="size-3" />
+					</Button>
+					<Button
+						onclick={(e) => {
+							e.stopPropagation();
+							onDelete();
+						}}
+						variant="ghost"
+						size="icon"
+						class="size-6 cursor-pointer rounded-full hover:bg-white hover:text-red-600 hover:shadow-md"
+					>
+						<Trash class="size-3" />
+					</Button>
+				</div>
+			{/if}
 		</Card.Title>
 	</Card.Header>
 	<Card.Content class="mt-0 pt-0">
@@ -114,19 +130,18 @@
 			</div>
 			<div class="col-span-2 flex flex-col">
 				<div class="font-semibold">
-					<span>{activity.position.slice(0, 50)}</span><span class="over-limit"
-						>{activity.position.slice(50)}</span
-					>, <span>{activity.organization.slice(0, 100)}</span><span class="over-limit"
-						>{activity.organization.slice(100)}</span
-					>
+					<CharLimitSpan text={activity.position} charLimit={50} />, <CharLimitSpan
+						text={activity.organization}
+						charLimit={100}
+					/>
 				</div>
 				<div>
-					<span>{activity.description.slice(0, 150)}</span><span class="over-limit"
-						>{activity.description.slice(150)}</span
-					>
+					<CharLimitSpan text={activity.description} charLimit={150} />
 				</div>
-				{#if activity.comments}
-					<div class="mt-2 text-red-600">{activity.comments}</div>
+				{#if activity.comments && !preview}
+					<div class="mt-2">
+						<Comments text={activity.comments} />
+					</div>
 				{/if}
 			</div>
 		</div>

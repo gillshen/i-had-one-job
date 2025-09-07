@@ -45,7 +45,7 @@
 						onCheckedChange={(v) => {
 							const newArray = [...activity.work_hours];
 							if (v) {
-								newArray.push({ grade: value, school: null, summer: null });
+								newArray.push({ grade: value, school: '', summer: '' });
 								newArray.sort(orderUCWorkHours);
 								activity.work_hours = [...newArray];
 							} else {

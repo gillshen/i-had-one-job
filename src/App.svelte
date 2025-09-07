@@ -4,8 +4,10 @@
 	import * as Resizable from '$lib/components/ui/resizable/';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import Switch from '$lib/components/ui/switch/switch.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { SquarePen } from '@lucide/svelte';
+	import { FileCheck2, SquarePen, TriangleAlert } from '@lucide/svelte';
 
 	// global state
 	import { gs, type Selection as SelectedItem } from '$lib/commands.svelte';
@@ -16,6 +18,7 @@
 	import CaFrHonorForm from '$lib/components/CAFrHonorForm.svelte';
 	import UcActivityCard from '$lib/components/UCActivityCard.svelte';
 	import UcActivityForm from '$lib/components/UCActivityForm.svelte';
+	import { orderActivityDefault, orderUCActivityByCategory } from '$lib/utils/sorting';
 
 	const formatSelectedItem = (item: SelectedItem): string => {
 		const itemType = item.type === 'activity' ? 'Activity' : 'Honor';
@@ -25,7 +28,7 @@
 	$effect(() => {
 		const appName = 'Activity List Editor';
 		const fileName = gs.filePath.split('\\').pop() || 'Untitled';
-		const title = `${gs.hasUnsavedChanges ? '* ' : ''}${fileName} - ${appName}`;
+		const title = `${fileName}${gs.hasUnsavedChanges ? ' *' : ''} - ${appName}`;
 		getCurrentWindow().setTitle(title).then().catch(console.log);
 		gs.updateMenuItems();
 	});
@@ -82,15 +85,19 @@
 	<Resizable.PaneGroup direction="horizontal" class="min-h-screen w-full rounded-xl">
 		<Resizable.Pane defaultSize={50} minSize={1}>
 			<!-- a list of activities displayed by cards -->
-			<div class="flex max-h-screen flex-col overflow-auto p-6">
+			<div class="flex h-[calc(100vh-36px)] flex-col overflow-auto p-6">
 				{#if gs.context.id === 'CA_FRESHMAN'}
 					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Honors</h2>
 					<div class="flex flex-col gap-1">
 						{#each gs.honors as honor, index}
 							<CaFrHonorCard
 								{honor}
+								previewMode={gs.previewMode}
 								isSelected={gs.isSelected({ type: 'honor', index })}
-								onclick={() => gs.selectHonor(index)}
+								onclick={() => {
+									if (gs.previewMode) return;
+									gs.selectHonor(index);
+								}}
 								onMoveUp={() => {
 									gs.selectHonor(index);
 									gs.moveItemUp();
@@ -105,11 +112,13 @@
 								}}
 							/>
 						{/each}
-						<div class="flex justify-center px-6 py-2 pt-4">
-							<Button variant="outline" class="w-32 rounded-full" onclick={gs.newHonor.bind(gs)}
-								>Add Honor</Button
-							>
-						</div>
+						{#if !gs.previewMode}
+							<div class="flex justify-center px-6 py-2 pt-4">
+								<Button variant="outline" class="w-32 rounded-full" onclick={gs.newHonor.bind(gs)}
+									>Add Honor</Button
+								>
+							</div>
+						{/if}
 					</div>
 
 					<Separator class="mt-4 mb-6 w-[calc(100%-48px)]" />
@@ -119,8 +128,12 @@
 						{#each gs.activities as activity, index}
 							<CAFrActivityCard
 								{activity}
+								previewMode={gs.previewMode}
 								isSelected={gs.isSelected({ type: 'activity', index: index })}
-								onclick={() => gs.selectActivity(index)}
+								onclick={() => {
+									if (gs.previewMode) return;
+									gs.selectActivity(index);
+								}}
 								onMoveUp={() => {
 									gs.selectActivity(index);
 									gs.moveItemUp();
@@ -135,21 +148,30 @@
 								}}
 							/>
 						{/each}
-						<div class="flex justify-center px-6 py-2 pt-4">
-							<Button variant="outline" class="w-32 rounded-full" onclick={gs.newActivity.bind(gs)}
-								>Add Activity</Button
-							>
-						</div>
+						{#if !gs.previewMode}
+							<div class="flex justify-center px-6 py-2 pt-4">
+								<Button
+									variant="outline"
+									class="w-32 rounded-full"
+									onclick={gs.newActivity.bind(gs)}>Add Activity</Button
+								>
+							</div>
+						{/if}
 					</div>
 				{:else if gs.context.id === 'UC'}
 					<h2 class="px-6 pb-2 text-2xl font-bold">Activities &amp; Awards</h2>
 					<div class="flex flex-col gap-1">
-						{#each gs.activities as activity, index}
+						{#each [...gs.activities].sort(gs.previewMode ? orderUCActivityByCategory : orderActivityDefault) as activity, index}
 							<UcActivityCard
 								{activity}
+								previewMode={gs.previewMode}
+								compactMode={gs.compactMode}
 								{index}
 								isSelected={gs.isSelected({ type: 'activity', index: index })}
-								onclick={() => gs.selectActivity(index)}
+								onclick={() => {
+									if (gs.previewMode) return;
+									gs.selectActivity(index);
+								}}
 								onMoveUp={() => {
 									gs.selectActivity(index);
 									gs.moveItemUp();
@@ -164,13 +186,48 @@
 								}}
 							/>
 						{/each}
-						<div class="flex justify-center px-6 py-2 pt-4">
-							<Button variant="outline" class="w-48 rounded-full" onclick={gs.newActivity.bind(gs)}
-								>Add Activity or Award</Button
-							>
-						</div>
+						{#if !gs.previewMode}
+							<div class="flex justify-center px-6 py-2 pt-4">
+								<Button
+									variant="outline"
+									class="w-48 rounded-full"
+									onclick={gs.newActivity.bind(gs)}>Add Activity or Award</Button
+								>
+							</div>
+						{/if}
 					</div>
 				{/if}
+			</div>
+			<div class="flex h-[36px] items-center justify-between gap-6 border-t-[1px] px-6 text-xs">
+				<div class="flex items-center space-x-2 text-zinc-600">
+					{#if gs.hasUnsavedChanges}
+						<TriangleAlert class="size-[14px]" /><Label class="text-xs font-normal text-zinc-600"
+							>Changes unsaved</Label
+						>
+					{:else}
+						<FileCheck2 class="size-[14px]" /><Label class="text-xs font-normal text-zinc-600"
+							>No unsaved changes</Label
+						>
+					{/if}
+				</div>
+				<div class="flex items-center gap-4">
+					{#if gs.context.id === 'UC'}
+						<div class="flex items-center">
+							<Switch id="compact-switch" class="cursor-pointer" bind:checked={gs.compactMode} />
+							<Label
+								for="compact-switch"
+								class="cursor-pointer pl-1 text-xs font-normal text-zinc-600">Compact</Label
+							>
+						</div>
+					{/if}
+					<div class="flex items-center">
+						<Switch id="preview-switch" class="cursor-pointer" bind:checked={gs.previewMode} />
+						<Label
+							for="preview-switch"
+							class="cursor-pointer pl-1 text-xs font-normal text-zinc-600">Preview</Label
+						>
+					</div>
+				</div>
 			</div>
 		</Resizable.Pane>
 
@@ -187,7 +244,14 @@
 							&bull; {formatSelectedItem(gs.selection)}{/if}
 					</div>
 				</div>
-				{#if gs.selection?.type === 'honor'}
+				{#if gs.previewMode}
+					<div class="m-auto p-8 text-sm">
+						<button
+							class="text-[#1295D8] underline underline-offset-2 hover:cursor-pointer"
+							onclick={() => (gs.previewMode = false)}>Exit Preview Mode</button
+						> to edit the list
+					</div>
+				{:else if gs.selection?.type === 'honor'}
 					<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
 				{:else if gs.selection?.type === 'activity'}
 					{#if gs.context.id === 'CA_FRESHMAN'}

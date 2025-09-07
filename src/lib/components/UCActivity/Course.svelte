@@ -1,17 +1,33 @@
 <script lang="ts">
 	import type { Activity } from '$lib/types';
+	import CharLimitSpan from '$lib/components/CharLimitSpan.svelte';
 	import UCSection from './UCSection.svelte';
 	import GradeLevels from './GradeLevels.svelte';
 	import TimeCommitment from './TimeCommitment.svelte';
+	import GradeLevelsCompact from './GradeLevelsCompact.svelte';
+	import TimeCommitmentCompact from './TimeCommitmentCompact.svelte';
 
 	type Props = {
 		activity: Activity;
+		compact?: boolean;
 	};
-	let { activity }: Props = $props();
+	let { activity, compact = false }: Props = $props();
 </script>
 
-<UCSection heading="Course name" body={activity.name} charLimit={60} />
-<UCSection heading="Course description" body={activity.program_description} charLimit={350} />
-<GradeLevels {activity} />
-<TimeCommitment {activity} />
-<div class="text-red-600">{activity.comments}</div>
+{#if compact}
+	<div class="grid grid-cols-[min(140px,33%)_1fr] gap-4">
+		<div>
+			<GradeLevelsCompact {activity} />
+			<TimeCommitmentCompact {activity} />
+		</div>
+		<div>
+			<div class="font-semibold"><CharLimitSpan text={activity.name} charLimit={60} /></div>
+			<div><CharLimitSpan text={activity.program_description} charLimit={350} /></div>
+		</div>
+	</div>
+{:else}
+	<UCSection heading="Course name" body={activity.name} charLimit={60} />
+	<UCSection heading="Course description" body={activity.program_description} charLimit={350} />
+	<GradeLevels {activity} />
+	<TimeCommitment {activity} />
+{/if}

@@ -77,9 +77,25 @@ export const buildMenu = async (gs: GlobalState) => {
 	});
 	gs.setCheckMenuItems('context-cl', contextCL);
 
+	const preview = await CheckMenuItem.new({
+		id: 'preview_check',
+		text: 'Preview Mode',
+		accelerator: 'Alt+P',
+		action: () => (gs.previewMode = !gs.previewMode)
+	});
+	gs.setCheckMenuItems('preview', preview);
+
+	const compactUC = await CheckMenuItem.new({
+		id: 'compact_uc_check',
+		text: 'Compact UC',
+		accelerator: 'Alt+C',
+		action: () => (gs.compactMode = !gs.compactMode)
+	});
+	gs.setCheckMenuItems('compact', compactUC);
+
 	const systemMenu = await Submenu.new({
 		text: 'System',
-		items: [contextCAF, contextCAT, contextUC, contextCL]
+		items: [contextCAF, contextCAT, contextUC, contextCL, separator, preview, compactUC]
 	});
 
 	const nextItem = await MenuItem.new({
@@ -183,27 +199,27 @@ export const buildMenu = async (gs: GlobalState) => {
 			await gs.save();
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowUp') {
 			e.preventDefault();
-			if (gs.selection) {
-				gs.moveItemUp();
-			}
+			gs.moveItemUp();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowUp') {
 			e.preventDefault();
 			gs.selectPrevious();
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowDown') {
 			e.preventDefault();
-			if (gs.selection) {
-				gs.moveItemDown();
-			}
+			gs.moveItemDown();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
 			e.preventDefault();
 			gs.selectNext();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'Delete') {
 			e.preventDefault();
-			if (gs.selection) {
+			if (gs.selection && !gs.previewMode) {
 				gs.deleteDialog = true;
 			}
 		} else if (e.key === 'Escape') {
 			gs.clearSelection();
+		} else if (e.altKey && e.key === 'p') {
+			gs.previewMode = !gs.previewMode;
+		} else if (e.altKey && e.key === 'c') {
+			gs.compactMode = !gs.compactMode;
 		}
 	});
 };

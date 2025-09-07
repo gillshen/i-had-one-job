@@ -42,8 +42,8 @@ export const ucActivityCategoryMap: Record<UCActivityCategory, string> = {
 
 export type UCWorkHour = {
 	grade: string;
-	school: number | null;
-	summer: number | null;
+	school: string;
+	summer: string;
 };
 
 type UCActivity = {
