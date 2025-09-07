@@ -4,6 +4,7 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
+	import * as RadioGroup from '$lib/components/ui/radio-group';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { Activity } from '$lib/types';
 	import CharLimit from '$lib/components/CharLimit.svelte';
@@ -62,10 +63,10 @@
 	<div class="flex flex-col gap-2">
 		<Label for="type">Activity type</Label>
 		<Select.Root type="single" name="type" bind:value={activity.type}>
-			<Select.Trigger class="w-full max-w-[400px] bg-white">
+			<Select.Trigger class="w-full max-w-[400px] truncate bg-white">
 				{activity.type}
 			</Select.Trigger>
-			<Select.Content class="max-h-[400px] max-w-[400px] overflow-auto">
+			<Select.Content class="max-h-[400px] max-w-[400px] overflow-y-auto">
 				{#each activityTypes as activityType}
 					<Select.Item value={activityType} label={activityType}>{activityType}</Select.Item>
 				{/each}
@@ -81,7 +82,7 @@
 
 	<div class="flex flex-col gap-2">
 		<Label for="title">Organization</Label>
-		<Textarea id="title" bind:value={activity.organization} spellcheck={true} />
+		<Textarea id="title" bind:value={activity.organization} spellcheck="true" />
 		<CharLimit content={activity.organization} limit={100} />
 	</div>
 
@@ -148,13 +149,27 @@
 	<div class="flex flex-wrap gap-6">
 		<div class="flex flex-col gap-2">
 			<Label for="hours-per-week">Hours spent per week</Label>
-			<Input id="hours-per-week" bind:value={activity.hours_per_week} maxlength={3} />
+			<Input id="hours-per-week" bind:value={activity.hours_per_week} maxlength={5} />
 		</div>
 
 		<div class="flex flex-col gap-2">
 			<Label for="weeks-per-year">Weeks spent per year</Label>
-			<Input id="weeks-per-year" bind:value={activity.weeks_per_year} maxlength={3} />
+			<Input id="weeks-per-year" bind:value={activity.weeks_per_year} maxlength={5} />
 		</div>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<Label>I intend to participate in a similar activity in college.</Label>
+		<RadioGroup.Root bind:value={activity.continue_in_college}>
+			<div class="flex items-center gap-3">
+				<RadioGroup.Item value="TRUE" id="continue-in-college" />
+				<Label for="continue-in-college" class="font-normal">Yes</Label>
+			</div>
+			<div class="flex items-center gap-3">
+				<RadioGroup.Item value="FALSE" id="not-continue-in-college" />
+				<Label for="not-continue-in-college" class="font-normal">No</Label>
+			</div>
+		</RadioGroup.Root>
 	</div>
 
 	<Separator class="mt-4" />

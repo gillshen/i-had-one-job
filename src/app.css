@@ -166,7 +166,7 @@ label {
 	border-color: oklch(70.7% 0.165 254.624);
 }
 .card:hover {
-	background-color: oklch(97% 0.014 254.604);
+	background-color: oklch(96.7% 0.001 286.375);
 }
 
 .char-limit {
@@ -176,6 +176,7 @@ label {
 	color: oklch(57.7% 0.245 27.325);
 }
 
+span.missing,
 span.over-limit {
 	background-color: oklch(88.5% 0.062 18.334);
 	border-radius: var(--radius-sm);

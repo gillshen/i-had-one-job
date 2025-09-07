@@ -8,12 +8,13 @@ type CAFrActivity = {
 	order: number;
 	type: string;
 	grade_level: Set<string>;
-	hours_per_week: number | null;
-	weeks_per_year: number | null;
+	hours_per_week: string;
+	weeks_per_year: string;
 	when: Set<string>;
 	position: string;
 	organization: string;
 	description: string;
+	continue_in_college: 'TRUE' | 'FALSE';
 	comments: string;
 };
 
@@ -52,8 +53,8 @@ type UCActivity = {
 	grade_level: Set<string>;
 	comments: string;
 	// for edu-prep & ec & course & volunteer
-	hours_per_week: number | null;
-	weeks_per_year: number | null;
+	hours_per_week: string;
+	weeks_per_year: string;
 	// "what did you do", for award & ec & volunteer & work (as job responsibilities)
 	description: string;
 	// for edu-prep & course (as course description) & volunteer & work (as company description)

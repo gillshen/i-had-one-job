@@ -11,7 +11,21 @@
 
 <UCSection {heading}>
 	<div class="flex flex-col">
-		<div>{activity.hours_per_week || 'x'} hours per week</div>
-		<div>{activity.weeks_per_year || 'x'} weeks per year</div>
+		<div>
+			{#if !isNaN(parseFloat(activity.hours_per_week))}
+				{activity.hours_per_week}
+			{:else}
+				<span class="missing">{activity.hours_per_week || '??'}</span>
+			{/if}
+			hours per week
+		</div>
+		<div>
+			{#if !isNaN(parseFloat(activity.weeks_per_year))}
+				{activity.weeks_per_year}
+			{:else}
+				<span class="missing">{activity.weeks_per_year || '??'}</span>
+			{/if}
+			weeks per year
+		</div>
 	</div>
 </UCSection>

@@ -12,16 +12,18 @@
 </script>
 
 <UCSection heading="Program name">
-	<div>
-		{#if EDU_PREP_PROGRAMS.includes(activity.name)}
-			<!-- pre-defined programs can bypass the char limit -->
-			{activity.name}
-		{:else}
-			<span>{activity.name.slice(0, 60)}</span><span class="over-limit"
-				>{activity.name.slice(60)}</span
-			>
-		{/if}
-	</div>
+	{#if activity.name}
+		<div>
+			{#if EDU_PREP_PROGRAMS.includes(activity.name)}
+				<!-- pre-defined programs can bypass the char limit -->
+				{activity.name}
+			{:else}
+				<span>{activity.name.slice(0, 60)}</span><span class="over-limit"
+					>{activity.name.slice(60)}</span
+				>
+			{/if}
+		</div>
+	{/if}
 </UCSection>
 <UCSection heading="Program description" body={activity.program_description} />
 <GradeLevels {activity} />

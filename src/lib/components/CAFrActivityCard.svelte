@@ -94,7 +94,23 @@
 			<div class="flex flex-col">
 				<div>{formatGradeLevels(activity.grade_level)}</div>
 				<div>{formatWhen(activity.when)}</div>
-				<div>{activity.hours_per_week || 'x'} hr/wk, {activity.weeks_per_year || 'x'} wk/yr</div>
+				<div>
+					{#if isNaN(parseInt(activity.hours_per_week))}
+						<span class="missing">{activity.hours_per_week || '??'}</span>
+					{:else}
+						{activity.hours_per_week}
+					{/if}
+					hr/wk,
+					{#if isNaN(parseInt(activity.weeks_per_year))}
+						<span class="missing">{activity.weeks_per_year || '??'}</span>
+					{:else}
+						{activity.weeks_per_year}
+					{/if}
+					wk/yr
+				</div>
+				<div>
+					{activity.continue_in_college === 'TRUE' ? 'Continue' : ''}
+				</div>
 			</div>
 			<div class="col-span-2 flex flex-col">
 				<div class="font-semibold">

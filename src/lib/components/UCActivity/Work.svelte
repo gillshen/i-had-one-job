@@ -19,19 +19,21 @@
 <UCSection heading="Job responsibilities" body={activity.description} charLimit={350} />
 <!-- TODO -->
 <UCSection heading="Grade participation and time commitment">
-	<div class="flex flex-col gap-1">
-		{#each [...activity.work_hours].sort(orderUCWorkHours) as { grade, school, summer }}
-			<div class="flex flex-col">
-				<div>{grade.toLowerCase() === 'pg' ? 'After 12th grade' : `${grade}th grade`}</div>
-				{#if school}
-					<div>&bull; During school year {school} hours per week</div>
-				{/if}
-				{#if summer}
-					<div>&bull; During summer {summer} hours per week</div>
-				{/if}
-			</div>
-		{/each}
-	</div>
+	{#if activity.work_hours.length}
+		<div class="flex flex-col gap-1">
+			{#each [...activity.work_hours].sort(orderUCWorkHours) as { grade, school, summer }}
+				<div class="flex flex-col">
+					<div>{grade.toLowerCase() === 'pg' ? 'After 12th grade' : `${grade}th grade`}</div>
+					{#if school}
+						<div>&bull; During school year {school} hours per week</div>
+					{/if}
+					{#if summer}
+						<div>&bull; During summer {summer} hours per week</div>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	{/if}
 </UCSection>
 <UCSection
 	heading="Currently working at this job"
@@ -47,7 +49,14 @@
 				})}
 			</div>
 		{:else}
-			<div>Start date: {activity.job_start_date}</div>
+			<div>
+				Start date:
+				{#if activity.job_start_date}
+					{activity.job_start_date}
+				{:else}
+					<span class="missing">mm/yyyy</span>
+				{/if}
+			</div>
 		{/if}
 		{#if activity.job_is_continuing === 'FALSE'}
 			{#if activity.job_end_date && !isNaN(Date.parse(activity.job_end_date))}
@@ -58,7 +67,14 @@
 					})}
 				</div>
 			{:else}
-				<div>End date: {activity.job_end_date}</div>
+				<div>
+					End date:
+					{#if activity.job_end_date}
+						{activity.job_end_date}
+					{:else}
+						<span class="missing">mm/yyyy</span>
+					{/if}
+				</div>
 			{/if}
 		{/if}
 	</div>

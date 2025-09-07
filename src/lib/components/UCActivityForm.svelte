@@ -5,7 +5,9 @@
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import * as RadioGroup from '$lib/components/ui/radio-group';
+	import * as HoverCard from '$lib/components/ui/hover-card';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { Info } from '@lucide/svelte';
 
 	import { ucActivityCategory, ucActivityCategoryMap, type Activity } from '$lib/types';
 	import CharLimit from '$lib/components/CharLimit.svelte';
@@ -35,12 +37,64 @@
 
 <form class="flex flex-grow flex-col gap-6 overflow-auto px-8 pt-4 pb-8 text-sm">
 	<div class="flex flex-col gap-2">
-		<Label for="type">Category</Label>
+		<Label for="type"
+			>Category<HoverCard.Root
+				><HoverCard.Trigger><Info class="size-4 text-[#1295D8]" /></HoverCard.Trigger>
+				<HoverCard.Content
+					class="flex max-h-[500px] w-fit max-w-prose flex-col gap-4 overflow-auto text-sm"
+				>
+					<section class="flex flex-col gap-1">
+						<h3 class="text-base font-medium">Award or honor</h3>
+						<p>
+							We want to know about the awards and honors you've received that mean the most to you.
+						</p>
+					</section>
+					<section class="flex flex-col gap-1">
+						<h3 class="text-base font-medium">Educational preparation programs</h3>
+						<p>
+							Any programs or activities that have enriched your academic experiences or helped you
+							prepare for college. Programs can include counseling, tutoring, research opportunities
+							or special study opportunities, such as study abroad.
+						</p>
+					</section>
+					<section class="flex flex-col gap-1">
+						<h3 class="text-base font-medium">Extracurricular activity</h3>
+						<p>
+							These could include hobbies, clubs, sports or anything else you haven't had the chance
+							to tell us about.
+						</p>
+					</section>
+					<section class="flex flex-col gap-1">
+						<h3 class="text-base font-medium">Other coursework</h3>
+						<p>
+							These are courses other than those required for UC admission (courses that do not fit
+							in UC's A-G subject areas). UC's A-G subject areas include history/social science,
+							English, math, science, language other than English (foreign language), and/or visual
+							and performing art. Other coursework could be leadership courses, religious studies
+							classes, career/vocational courses, nontransferable community college courses, or
+							other courses that might not have been granted academic credit. Don't include
+							non-academic courses, such as PE, office/teacher assistant, etc.
+						</p>
+					</section>
+					<section class="flex flex-col gap-1">
+						<h3 class="text-base font-medium">Volunteering / Community service</h3>
+						<p>These are activities you've donated time and effort to without getting paid.</p>
+					</section>
+					<section class="flex flex-col gap-1">
+						<h3 class="text-base font-medium">Work experience</h3>
+						<p>
+							This is for telling us about any paid jobs or paid internships you've had. If you had
+							an unpaid internship, enter it under the volunteer/community service category.
+						</p>
+					</section>
+				</HoverCard.Content>
+			</HoverCard.Root></Label
+		>
 		<Select.Root type="single" name="uc_category" bind:value={activity.uc_category}>
-			<Select.Trigger class="w-full bg-white">
+			<Select.Trigger class="w-full max-w-[400px] truncate bg-white">
 				{ucActivityCategoryMap[activity.uc_category]}
 			</Select.Trigger>
-			<Select.Content class="max-h-[400px]">
+			<Select.Content class="max-h-[400px] max-w-[400px] overflow-y-auto">
 				{#each Array.from(ucActivityCategory) as category}
 					{@const label = ucActivityCategoryMap[category] || 'Select a category...'}
 					<Select.Item value={category} {label} disabled={!category}>{label}</Select.Item>
@@ -124,13 +178,17 @@
 	{:else if activity.uc_category === 'edu-prep'}
 		<div class="flex flex-col gap-2">
 			<Label>What was the program name?</Label>
+			<div class="uc-helper">
+				If you participated in a program that is not listed below, select &quot;Other&quot; and
+				specify the name of the program in the space provided.
+			</div>
 			<!-- let user choose from a Select widget; if the user chooses "Other", show an Input and let user type -->
 			<!-- update activity.name with the selected value if it's not "Other"; otherwise update it with the value of the Input -->
 			<Select.Root type="single" bind:value={programChoice}>
 				<Select.Trigger class="w-full max-w-[400px] truncate bg-white">
 					{programChoice}
 				</Select.Trigger>
-				<Select.Content class="max-h-[400px] max-w-[400px] overflow-auto">
+				<Select.Content class="max-h-[400px] max-w-[400px] overflow-y-auto">
 					{#each UC.EDU_PREP_PROGRAMS as program}
 						<Select.Item value={program} label={program}>{program}</Select.Item>
 					{/each}

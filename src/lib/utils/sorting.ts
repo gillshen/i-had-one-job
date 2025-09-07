@@ -8,7 +8,7 @@ export const orderGradeLevels = (level1: string, level2: string): number => {
 	return index1 - index2;
 };
 
-const timingOrder = ['all year', 'during school year', 'during school break'];
+const timingOrder = ['during school year', 'during school break', 'all year'];
 
 export const orderTimings = (t1: string, t2: string): number => {
 	const index1 = timingOrder.indexOf(t1);

@@ -20,6 +20,8 @@ const parseGradeLevel = <T extends { grade_level: string }>(
 			item.grade_level
 				.toString()
 				?.split(/,\s*|\s+/)
+				.map((grade) => grade.toLowerCase().trim())
+				.filter((grade) => grade.match(/^(9|10|11|12|pg)$/))
 				.filter(Boolean) ?? []
 		)
 	};
@@ -42,8 +44,8 @@ const parseRecLevel = <T extends { level_of_recognition: string }>(
 		level_of_recognition: new Set(
 			item.level_of_recognition
 				?.split(/,\s*/)
-				.filter(Boolean)
-				.map((lvl: string) => lvl.toLowerCase()) ?? []
+				.map((lvl) => lvl.toLowerCase().trim())
+				.filter(Boolean) ?? []
 		)
 	};
 };
@@ -103,7 +105,10 @@ const parseWorkbook = async (
 		.map(parseRecLevel)
 		.map(parseUCWorkHours)
 		.map((a) => ({
+			// supply default fields to prevent rendering errors
+			...newActivity(a.order),
 			...a,
+			// parse Common App timing of pariticipation
 			when: new Set(
 				a.when
 					?.split(/,\s*/)
@@ -138,6 +143,7 @@ const serializeCAFrWorkbook = (data: {
 		position: a.position,
 		organization: a.organization,
 		description: a.description,
+		continue_in_college: a.continue_in_college,
 		comments: a.comments
 	})) as SerializedCAFrActivity[];
 	console.table(serializedActivities);
@@ -193,13 +199,14 @@ export const newActivity = (order: number): Activity => {
 		// common and CA fields
 		order,
 		grade_level: new Set(),
-		hours_per_week: null,
-		weeks_per_year: null,
+		hours_per_week: '',
+		weeks_per_year: '',
 		type: '',
 		when: new Set(),
 		position: 'TODO',
 		organization: 'TODO',
 		description: '',
+		continue_in_college: 'FALSE',
 		comments: '',
 		// uc fields
 		uc_category: '',

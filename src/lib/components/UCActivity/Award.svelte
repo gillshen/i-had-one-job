@@ -50,11 +50,13 @@
 
 <UCSection heading="Name of the award or honor" body={activity.name} charLimit={60} />
 <UCSection heading="Level of recognition">
-	<div class="flex flex-col">
-		{#each getRecLevels(activity.level_of_recognition) as recognition}
-			<div>{formatRecognitionLevel(recognition)}</div>
-		{/each}
-	</div>
+	{#if Array.from(activity.level_of_recognition).length}
+		<div class="flex flex-col">
+			{#each getRecLevels(activity.level_of_recognition) as recognition}
+				<div>{formatRecognitionLevel(recognition)}</div>
+			{/each}
+		</div>
+	{/if}
 </UCSection>
 <UCSection heading="Type of award" body={formatAwardType(activity.award_type)} />
 <GradeLevels {activity} heading="Grade level when awarded" />
