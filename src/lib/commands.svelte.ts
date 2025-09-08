@@ -1,7 +1,8 @@
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import type { CheckMenuItem, MenuItem } from '@tauri-apps/api/menu';
 import type { Context, Activity, Honor } from './types';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 import { APPLICATION_SYSTEMS, newActivity, newHonor } from './applicationSystems';
-import type { CheckMenuItem, MenuItem } from '@tauri-apps/api/menu';
 
 export type Selection = {
 	type: 'activity' | 'honor';
@@ -10,7 +11,12 @@ export type Selection = {
 
 type ContextKey = keyof typeof APPLICATION_SYSTEMS;
 
-type PendingOperation = { op: 'new' } | { op: 'open' } | { op: 'context'; arg: ContextKey } | null;
+type PendingOperation =
+	| { op: 'new' }
+	| { op: 'open' }
+	| { op: 'context'; arg: ContextKey }
+	| { op: 'quit' }
+	| null;
 
 export class GlobalState {
 	private _menuItems: Record<string, MenuItem> = {};
@@ -60,9 +66,10 @@ export class GlobalState {
 		this._checkMenuItems['context-cl']?.setChecked(this.context?.id === 'COALITION');
 
 		// set preview/compact mode toggle state
+		this._checkMenuItems['preview']?.setEnabled(!!this.context);
 		this._checkMenuItems['preview']?.setChecked(!!this.previewMode);
-		this._checkMenuItems['compact']?.setChecked(!!this.compactMode);
 		this._checkMenuItems['compact']?.setEnabled(this.context?.id === 'UC');
+		this._checkMenuItems['compact']?.setChecked(!!this.compactMode);
 
 		// disable next/prev navigation unless there is at least one item
 		this._menuItems['next-item']?.setEnabled(!!this.activities.length || !!this.honors.length);
@@ -181,7 +188,7 @@ export class GlobalState {
 		return this.selection?.type === test?.type && this.selection?.index === test?.index;
 	}
 
-	private async tryOperation(operation: PendingOperation) {
+	async tryOperation(operation: PendingOperation) {
 		this._pendingOperation = operation;
 		if (this.hasUnsavedChanges) {
 			this.askSaveDialog = true;
@@ -201,6 +208,9 @@ export class GlobalState {
 			case 'context':
 				this._new();
 				this._context = APPLICATION_SYSTEMS[this._pendingOperation.arg];
+				break;
+			case 'quit':
+				await getCurrentWindow().close();
 				break;
 		}
 		this._pendingOperation = null;

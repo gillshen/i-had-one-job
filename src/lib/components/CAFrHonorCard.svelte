@@ -65,7 +65,9 @@
 	{onclick}
 >
 	<Card.Content class="my-0 flex flex-col py-0">
-		<div class=" grid grid-cols-[12px_3fr_2fr_2fr_2fr] gap-x-4 gap-y-2">
+		<div
+			class=" grid grid-cols-[12px_1fr_min(120px,20%)_min(120px,20%)_min(100px,20%)] gap-x-4 gap-y-2"
+		>
 			<div class="min-w-0 font-medium">{honor.order}</div>
 			<div class="flex min-w-0 flex-col gap-2">
 				<div class="font-medium">
@@ -74,7 +76,9 @@
 			</div>
 			<div class="min-w-0">{formatRecognitionLevels(honor.level_of_recognition)}</div>
 			<div class="min-w-0">{formatGradeLevels(honor.grade_level)}</div>
-			<div class="flex gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200">
+			<div
+				class="flex justify-end gap-1 font-normal opacity-0 transition-opacity group-hover:opacity-200"
+			>
 				{#if !preview}
 					<Button
 						onclick={(e) => {

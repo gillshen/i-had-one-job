@@ -130,10 +130,8 @@
 			</div>
 			<div class="col-span-2 flex flex-col">
 				<div class="font-semibold">
-					<CharLimitSpan text={activity.position} charLimit={50} />, <CharLimitSpan
-						text={activity.organization}
-						charLimit={100}
-					/>
+					<CharLimitSpan text={activity.position} charLimit={50} />{#if activity.organization},{/if}
+					<CharLimitSpan text={activity.organization} charLimit={100} />
 				</div>
 				<div>
 					<CharLimitSpan text={activity.description} charLimit={150} />

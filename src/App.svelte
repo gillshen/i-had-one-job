@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getCurrentWindow } from '@tauri-apps/api/window';
+	import { onMount } from 'svelte';
 
 	import * as Resizable from '$lib/components/ui/resizable/';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -31,6 +32,31 @@
 		const title = `${fileName}${gs.hasUnsavedChanges ? ' *' : ''} - ${appName}`;
 		getCurrentWindow().setTitle(title).then().catch(console.log);
 		gs.updateMenuItems();
+	});
+
+	onMount(() => {
+		let unlisten: (() => void) | null = null;
+
+		// Set up the window close listener
+		getCurrentWindow()
+			.onCloseRequested(async (event) => {
+				if (gs.hasUnsavedChanges) {
+					// Prevent the window from closing
+					event.preventDefault();
+					// Set the pending operation to close and show the dialog
+					gs.tryOperation({ op: 'quit' });
+				}
+			})
+			.then((unlistenFn) => {
+				unlisten = unlistenFn;
+			});
+
+		// Cleanup listener when component is destroyed
+		return () => {
+			if (unlisten) {
+				unlisten();
+			}
+		};
 	});
 </script>
 

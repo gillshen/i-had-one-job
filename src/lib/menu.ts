@@ -1,13 +1,10 @@
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { Menu, Submenu, MenuItem, CheckMenuItem, PredefinedMenuItem } from '@tauri-apps/api/menu';
 import type { GlobalState } from '$lib/commands.svelte';
 
 export const buildMenu = async (gs: GlobalState) => {
 	const separator = await PredefinedMenuItem.new({
 		item: 'Separator'
-	});
-	const quit = await PredefinedMenuItem.new({
-		text: 'Quit',
-		item: 'Quit'
 	});
 
 	const newFile = await MenuItem.new({
@@ -41,6 +38,13 @@ export const buildMenu = async (gs: GlobalState) => {
 		action: gs.saveAs.bind(gs)
 	});
 	gs.setMenuItem('save-file-as', saveFileAs);
+
+	const quit = await MenuItem.new({
+		id: 'quit',
+		text: 'Quit',
+		accelerator: 'CmdOrCtrl+Q',
+		action: async () => await getCurrentWindow().close()
+	});
 
 	const fileSubmenu = await Submenu.new({
 		text: 'File',
@@ -179,7 +183,10 @@ export const buildMenu = async (gs: GlobalState) => {
 
 	// manually bind accelerators as it doesn't work automatically on Windows
 	window.addEventListener('keydown', async (e) => {
-		if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+		if ((e.ctrlKey || e.metaKey) && e.key === 'q') {
+			e.preventDefault();
+			await getCurrentWindow().close();
+		} else if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
 			e.preventDefault();
 			await gs.open();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
