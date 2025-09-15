@@ -24,17 +24,29 @@ jobs:
       contents: write
     strategy:
       fail-fast: true
+      matrix:
+        include:
+          # Windows build
+          - platform: 'windows-latest'
+            args: ''
+          # macOS build
+          - platform: 'macos-latest'
+            args: '--target universal-apple-darwin' # Builds for both Intel and Apple Silicon Macs
+          # Linux build
+          - platform: 'ubuntu-22.04'
+            args: ''
 
-    runs-on: 'ubuntu-24.04'
+    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '23'
+          node-version: lts/* # Use the latest LTS version
+
       - name: Install frontend dependencies
-        run: npm ci
+        run: npm install
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable

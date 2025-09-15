@@ -45,7 +45,7 @@
 			</div>
 		{/if}
 	</UCSection>
-	<UCSection heading="Program description" body={activity.program_description} />
+	<UCSection heading="Program description" body={activity.program_description} charLimit={350} />
 	<GradeLevels {activity} />
 	<TimeCommitment {activity} />
 {/if}
