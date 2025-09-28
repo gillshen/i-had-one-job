@@ -418,10 +418,18 @@ export class GlobalState {
 			const otherItem = b[index];
 			// Get all unique keys from both objects
 			const allKeys = new Set([...Object.keys(item), ...Object.keys(otherItem)]);
+
 			// Check that every key has the same value in both objects
-			return Array.from(allKeys).every(
-				(key) => JSON.stringify(item[key]) === JSON.stringify(otherItem[key])
-			);
+			return Array.from(allKeys).every((key) => {
+				const value = item[key];
+				const otherValue = otherItem[key];
+				// if the values are both sets, handle them specially
+				if (value instanceof Set && otherValue instanceof Set) {
+					return value.size === otherValue.size && [...value].every((v) => otherValue.has(v));
+				}
+				// else compare them as JSON strings
+				return JSON.stringify(item[key]) === JSON.stringify(otherItem[key]);
+			});
 		});
 	}
 
