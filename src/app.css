@@ -200,3 +200,7 @@ span.over-limit {
 	color: oklch(44.2% 0.017 285.786);
 	user-select: none;
 }
+
+*::selection {
+	@apply bg-amber-200;
+}

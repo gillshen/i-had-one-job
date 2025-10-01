@@ -10,6 +10,7 @@
 	import { Info } from '@lucide/svelte';
 
 	import { ucActivityCategory, ucActivityCategoryMap, type Activity } from '$lib/types';
+	import SpellcheckTextarea from '$lib/components/SpellcheckTextarea.svelte';
 	import CharLimit from '$lib/components/CharLimit.svelte';
 	import * as UC from '$lib/components/UCActivity';
 
@@ -162,7 +163,7 @@
 				For example: How are award recipients chosen? How many people are selected to receive the
 				award? Is there an application or nomination for the award?
 			</div>
-			<Textarea id="award-req" bind:value={activity.award_req} spellcheck="true" />
+			<SpellcheckTextarea id="award-req" bind:value={activity.award_req} />
 			<CharLimit content={activity.award_req} limit={250} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -172,7 +173,7 @@
 				Were there multiple competitions that you had to participate in? How much time did you
 				dedicate to winning this award?
 			</div>
-			<Textarea id="description" bind:value={activity.description} spellcheck="true" />
+			<SpellcheckTextarea id="description" bind:value={activity.description} />
 			<CharLimit content={activity.description} limit={350} />
 		</div>
 	{:else if activity.uc_category === 'edu-prep'}
@@ -208,11 +209,7 @@
 				Think about the program's main focus, your experience, and what you accomplished and learned
 				while participating in the program.
 			</div>
-			<Textarea
-				id="program-description"
-				bind:value={activity.program_description}
-				spellcheck="true"
-			/>
+			<SpellcheckTextarea id="program-description" bind:value={activity.program_description} />
 			<CharLimit content={activity.program_description} limit={350} />
 		</div>
 		<UC.GradeLevelSelector
@@ -236,7 +233,7 @@
 				a mentor to others, acting as a point-person in charge of a specific task, or taking a lead
 				role in organizing an event or project.
 			</div>
-			<Textarea id="description" bind:value={activity.description} spellcheck="true" />
+			<SpellcheckTextarea id="description" bind:value={activity.description} />
 			<CharLimit content={activity.description} limit={350} />
 		</div>
 		<UC.GradeLevelSelector
@@ -261,11 +258,7 @@
 				What program or school offered the course? Also, think about describing the major themes or
 				topics the course covered, as well as what knowledge or skills you learned.
 			</div>
-			<Textarea
-				id="course-description"
-				bind:value={activity.program_description}
-				spellcheck="true"
-			/>
+			<SpellcheckTextarea id="course-description" bind:value={activity.program_description} />
 			<CharLimit content={activity.program_description} limit={350} />
 		</div>
 		<UC.GradeLevelSelector
@@ -294,11 +287,7 @@
 				Consider what kind of work the organization does: What's the reason the organization exists
 				today? How does it help a certain community or population?
 			</div>
-			<Textarea
-				id="course-description"
-				bind:value={activity.program_description}
-				spellcheck="true"
-			/>
+			<SpellcheckTextarea id="course-description" bind:value={activity.program_description} />
 			<CharLimit content={activity.program_description} limit={250} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -309,7 +298,7 @@
 				it can mean being a mentor to others, acting as a point-person in charge of a specific task,
 				or taking a lead role in organizing an event or project.
 			</div>
-			<Textarea id="course-description" bind:value={activity.description} spellcheck="true" />
+			<SpellcheckTextarea id="course-description" bind:value={activity.description} />
 			<CharLimit content={activity.description} limit={350} />
 		</div>
 		<UC.GradeLevelSelector
@@ -337,11 +326,7 @@
 				Consider describing the industry, the size of the company or organization, or its main
 				focus.
 			</div>
-			<Textarea
-				id="course-description"
-				bind:value={activity.program_description}
-				spellcheck="true"
-			/>
+			<SpellcheckTextarea id="course-description" bind:value={activity.program_description} />
 			<CharLimit content={activity.program_description} limit={250} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -351,7 +336,7 @@
 		</div>
 		<div class="flex flex-col gap-2">
 			<Label for="course-description">What were your job responsibilities?</Label>
-			<Textarea id="course-description" bind:value={activity.description} spellcheck="true" />
+			<SpellcheckTextarea id="course-description" bind:value={activity.description} />
 			<CharLimit content={activity.description} limit={350} />
 		</div>
 		<UC.WorkHourInput bind:activity />

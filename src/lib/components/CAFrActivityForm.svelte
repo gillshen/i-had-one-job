@@ -6,7 +6,9 @@
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import * as RadioGroup from '$lib/components/ui/radio-group';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+
 	import type { Activity } from '$lib/types';
+	import SpellcheckTextarea from '$lib/components/SpellcheckTextarea.svelte';
 	import CharLimit from '$lib/components/CharLimit.svelte';
 
 	let { activity = $bindable() }: { activity: Activity } = $props<{ activity: Activity }>();
@@ -82,7 +84,7 @@
 
 	<div class="flex flex-col gap-2">
 		<Label for="title">Organization</Label>
-		<Textarea id="title" bind:value={activity.organization} spellcheck="true" />
+		<SpellcheckTextarea id="title" bind:value={activity.organization} />
 		<CharLimit content={activity.organization} limit={100} />
 	</div>
 
@@ -91,7 +93,7 @@
 			>Please describe this activity, including what you accomplished and any recognition you
 			received, etc.</Label
 		>
-		<Textarea id="description" bind:value={activity.description} spellcheck="true" />
+		<SpellcheckTextarea id="description" bind:value={activity.description} />
 		<CharLimit content={activity.description} limit={150} />
 	</div>
 

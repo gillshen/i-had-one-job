@@ -3,7 +3,9 @@
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+
 	import type { Honor } from '$lib/types';
+	import SpellcheckTextarea from '$lib/components/SpellcheckTextarea.svelte';
 	import CharLimit from '$lib/components/CharLimit.svelte';
 
 	let { honor = $bindable() }: { honor: Honor } = $props();
@@ -27,7 +29,7 @@
 <form class="flex flex-grow flex-col gap-6 overflow-auto px-8 pt-4 pb-8 text-sm">
 	<div class="flex flex-col gap-2">
 		<Label for="title">Title</Label>
-		<Textarea id="title" bind:value={honor.title} spellcheck="true" />
+		<SpellcheckTextarea id="title" bind:value={honor.title} />
 		<CharLimit content={honor.title} limit={100} />
 	</div>
 
