@@ -107,7 +107,7 @@
 	{#if activity.uc_category === 'award'}
 		<div class="flex flex-col gap-2">
 			<Label for="name">What's the name of the award or honor?</Label>
-			<Input id="name" bind:value={activity.name} spellcheck="true" />
+			<SpellcheckTextarea id="name" bind:value={activity.name} />
 			<CharLimit content={activity.name} limit={60} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -198,7 +198,7 @@
 			{#if programChoice === 'Other'}
 				<div class="mt-2 flex flex-col gap-2">
 					<Label for="other-program">Program name</Label>
-					<Input id="other-program" bind:value={activity.name} spellcheck="true" />
+					<SpellcheckTextarea id="other-program" bind:value={activity.name} />
 					<CharLimit content={activity.name} limit={60} />
 				</div>
 			{/if}
@@ -222,7 +222,7 @@
 	{:else if activity.uc_category === 'ec'}
 		<div class="flex flex-col gap-2">
 			<Label for="name">What's the name of the activity?</Label>
-			<Input id="name" bind:value={activity.name} spellcheck="true" />
+			<SpellcheckTextarea id="name" bind:value={activity.name} />
 			<CharLimit content={activity.name} limit={60} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -249,7 +249,7 @@
 	{:else if activity.uc_category === 'course'}
 		<div class="flex flex-col gap-2">
 			<Label for="name">What was the course name?</Label>
-			<Input id="name" bind:value={activity.name} spellcheck="true" />
+			<SpellcheckTextarea id="name" bind:value={activity.name} />
 			<CharLimit content={activity.name} limit={60} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -276,7 +276,7 @@
 			<Label for="name"
 				>What's the name of the organization, program, school or group you volunteered for?</Label
 			>
-			<Input id="name" bind:value={activity.name} spellcheck="true" />
+			<SpellcheckTextarea id="name" bind:value={activity.name} />
 			<CharLimit content={activity.name} limit={60} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -315,7 +315,7 @@
 		<div class="flex flex-col gap-2">
 			<Label for="name">Where did you work?</Label>
 			<div class="uc-helper">Please tell us the name of the place where you worked.</div>
-			<Input id="name" bind:value={activity.name} spellcheck="true" />
+			<SpellcheckTextarea id="name" bind:value={activity.name} />
 			<CharLimit content={activity.name} limit={60} />
 		</div>
 		<div class="flex flex-col gap-2">
@@ -331,7 +331,7 @@
 		</div>
 		<div class="flex flex-col gap-2">
 			<Label for="name">What was your job title?</Label>
-			<Input id="name" bind:value={activity.job_title} spellcheck="true" />
+			<SpellcheckTextarea id="name" bind:value={activity.job_title} />
 			<CharLimit content={activity.job_title} limit={60} />
 		</div>
 		<div class="flex flex-col gap-2">

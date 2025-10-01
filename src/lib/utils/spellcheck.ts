@@ -23,10 +23,10 @@ export const spellcheck = (params: {
 	const htmlArray: string[] = [];
 	const misspelled: Misspelled[] = [];
 
-	(text || '').split(/([A-Za-z']+)/g).forEach((segment) => {
-		if (segment.match(/[A-Za-z']+/) && !dictionary.check(segment)) {
+	(text || '').split(/([\p{L}']+)/gu).forEach((segment) => {
+		if (segment.match(/[\p{L}']+/u) && !dictionary.check(segment)) {
 			htmlArray.push(
-				`<span style="text-decoration: underline red wavy;">${escapeHtml(segment)}</span>`
+				`<span style="text-decoration: underline red wavy; text-underline-offset: 3px;">${escapeHtml(segment)}</span>`
 			);
 			if (maxSuggestions !== 0) {
 				const suggestions: string[] = dictionary.suggest(segment);

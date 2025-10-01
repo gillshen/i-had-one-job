@@ -78,7 +78,7 @@
 
 	<div class="flex flex-col gap-2">
 		<Label for="position">Position/Leadership description</Label>
-		<Input id="position" bind:value={activity.position} spellcheck="true" />
+		<SpellcheckTextarea id="position" bind:value={activity.position} />
 		<CharLimit content={activity.position} limit={50} />
 	</div>
 
