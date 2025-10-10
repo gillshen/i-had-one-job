@@ -116,27 +116,29 @@
 					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Honors</h2>
 					<div class="flex flex-col gap-1">
 						{#each gs.honors as honor, index}
-							<CaFrHonorCard
-								{honor}
-								previewMode={gs.previewMode}
-								isSelected={gs.isSelected({ type: 'honor', index })}
-								onclick={() => {
-									if (gs.previewMode) return;
-									gs.selectHonor(index);
-								}}
-								onMoveUp={() => {
-									gs.selectHonor(index);
-									gs.moveItemUp();
-								}}
-								onMoveDown={() => {
-									gs.selectHonor(index);
-									gs.moveItemDown();
-								}}
-								onDelete={() => {
-									gs.selectHonor(index);
-									gs.deleteDialog = true;
-								}}
-							/>
+							{#if !gs.previewMode || index < 5}
+								<CaFrHonorCard
+									{honor}
+									previewMode={gs.previewMode}
+									isSelected={gs.isSelected({ type: 'honor', index })}
+									onclick={() => {
+										if (gs.previewMode) return;
+										gs.selectHonor(index);
+									}}
+									onMoveUp={() => {
+										gs.selectHonor(index);
+										gs.moveItemUp();
+									}}
+									onMoveDown={() => {
+										gs.selectHonor(index);
+										gs.moveItemDown();
+									}}
+									onDelete={() => {
+										gs.selectHonor(index);
+										gs.deleteDialog = true;
+									}}
+								/>
+							{/if}
 						{/each}
 						{#if !gs.previewMode}
 							<div class="flex justify-center px-6 py-2 pt-4">
@@ -152,27 +154,29 @@
 					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Activities</h2>
 					<div class="flex flex-col gap-1">
 						{#each gs.activities as activity, index}
-							<CAFrActivityCard
-								{activity}
-								previewMode={gs.previewMode}
-								isSelected={gs.isSelected({ type: 'activity', index: index })}
-								onclick={() => {
-									if (gs.previewMode) return;
-									gs.selectActivity(index);
-								}}
-								onMoveUp={() => {
-									gs.selectActivity(index);
-									gs.moveItemUp();
-								}}
-								onMoveDown={() => {
-									gs.selectActivity(index);
-									gs.moveItemDown();
-								}}
-								onDelete={() => {
-									gs.selectActivity(index);
-									gs.deleteDialog = true;
-								}}
-							/>
+							{#if !gs.previewMode || index < 10}
+								<CAFrActivityCard
+									{activity}
+									previewMode={gs.previewMode}
+									isSelected={gs.isSelected({ type: 'activity', index: index })}
+									onclick={() => {
+										if (gs.previewMode) return;
+										gs.selectActivity(index);
+									}}
+									onMoveUp={() => {
+										gs.selectActivity(index);
+										gs.moveItemUp();
+									}}
+									onMoveDown={() => {
+										gs.selectActivity(index);
+										gs.moveItemDown();
+									}}
+									onDelete={() => {
+										gs.selectActivity(index);
+										gs.deleteDialog = true;
+									}}
+								/>
+							{/if}
 						{/each}
 						{#if !gs.previewMode}
 							<div class="flex justify-center px-6 py-2 pt-4">
@@ -188,29 +192,31 @@
 					<h2 class="px-6 pb-2 text-2xl font-bold">Activities &amp; Awards</h2>
 					<div class="flex flex-col gap-1">
 						{#each [...gs.activities].sort(gs.previewMode ? orderUCActivityByCategory : orderActivityDefault) as activity, index}
-							<UcActivityCard
-								{activity}
-								previewMode={gs.previewMode}
-								compactMode={gs.compactMode}
-								{index}
-								isSelected={gs.isSelected({ type: 'activity', index: index })}
-								onclick={() => {
-									if (gs.previewMode) return;
-									gs.selectActivity(index);
-								}}
-								onMoveUp={() => {
-									gs.selectActivity(index);
-									gs.moveItemUp();
-								}}
-								onMoveDown={() => {
-									gs.selectActivity(index);
-									gs.moveItemDown();
-								}}
-								onDelete={() => {
-									gs.selectActivity(index);
-									gs.deleteDialog = true;
-								}}
-							/>
+							{#if !gs.previewMode || index < 20}
+								<UcActivityCard
+									{activity}
+									previewMode={gs.previewMode}
+									compactMode={gs.compactMode}
+									{index}
+									isSelected={gs.isSelected({ type: 'activity', index: index })}
+									onclick={() => {
+										if (gs.previewMode) return;
+										gs.selectActivity(index);
+									}}
+									onMoveUp={() => {
+										gs.selectActivity(index);
+										gs.moveItemUp();
+									}}
+									onMoveDown={() => {
+										gs.selectActivity(index);
+										gs.moveItemDown();
+									}}
+									onDelete={() => {
+										gs.selectActivity(index);
+										gs.deleteDialog = true;
+									}}
+								/>
+							{/if}
 						{/each}
 						{#if !gs.previewMode}
 							<div class="flex justify-center px-6 py-2 pt-4">

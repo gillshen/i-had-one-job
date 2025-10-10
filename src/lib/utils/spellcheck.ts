@@ -23,8 +23,9 @@ export const spellcheck = (params: {
 	const htmlArray: string[] = [];
 	const misspelled: Misspelled[] = [];
 
-	(text || '').split(/([\p{L}']+)/gu).forEach((segment) => {
-		if (segment.match(/[\p{L}']+/u) && !dictionary.check(segment)) {
+	(text || '').split(/([0-9\p{L}'’]+)/gu).forEach((segment) => {
+		const word = prepareWord(segment);
+		if (!!word && word.match(/[0-9\p{L}'’]+/u) && !dictionary.check(word)) {
 			htmlArray.push(
 				`<span style="text-decoration: underline red wavy; text-underline-offset: 3px;">${escapeHtml(segment)}</span>`
 			);
@@ -37,4 +38,23 @@ export const spellcheck = (params: {
 		}
 	});
 	return { html: htmlArray.join(''), misspelled };
+};
+
+const prepareWord = (word: string): string => {
+	// if `word` doesn't contain any letter, return an empty string
+	// so typo.js skips checking it
+	if (!word.match(/[\p{L}]+/u)) {
+		return '';
+	}
+
+	// replace curly right quotes with straight right quotes
+	let result = word.replace(/[’]/g, "'");
+
+	// strip the trailing striaght right quote if it is preceded by "s" or "x"
+	// so typo.js doesn't mark it as a misspelling
+	if (result.endsWith("s'") || result.endsWith("x'")) {
+		result = result.slice(0, -1);
+	}
+
+	return result;
 };
