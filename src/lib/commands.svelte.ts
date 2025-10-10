@@ -234,13 +234,25 @@ export class GlobalState {
 
 	private async _open() {
 		if (!this.context) return;
-		const filePath = (await getOpenFilePath(this.context.fileFilter)) ?? '';
+
+		const fileFilter = {
+			name: this.context.fileFilter.name,
+			extensions: [...this.context.fileFilter.extensions, 'xlsx', 'xls'] // allow all Excel files
+		};
+		const filePath = (await getOpenFilePath(fileFilter)) ?? '';
+
 		if (!filePath) return;
 		try {
-			const data = await openFile(filePath, { parser: this.context.parser });
+			// detect if filePath has a standard extension (such as "caf.xlsx") or is a general xlsx/xls file
+			const isStandardFile = this.context.fileFilter.extensions.some((ext) =>
+				filePath.endsWith(ext)
+			);
+			const data = await openFile(filePath, {
+				parser: isStandardFile ? this.context.parser : this.context.importer
+			});
 			this.activities = data.activities;
 			this.honors = data.honors;
-			this.filePath = filePath;
+			this.filePath = isStandardFile ? filePath : '';
 			this.updateSnapshots();
 			this.clearSelection();
 		} catch (e) {

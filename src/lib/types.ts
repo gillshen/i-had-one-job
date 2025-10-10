@@ -131,6 +131,7 @@ export type Context = {
 		maxEntries: number;
 	};
 	parser: (wb: WorkBook) => Promise<{ activities: Activity[]; honors: Honor[] }>;
+	importer: (wb: WorkBook) => Promise<{ activities: Activity[]; honors: Honor[] }>;
 	serialize: (data: {
 		activities: Activity[];
 		honors: Honor[];

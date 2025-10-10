@@ -7,8 +7,18 @@ import type {
 	RawHonor,
 	SerializedCAFrActivity,
 	SerializedUCActivity,
-	UCWorkHour
+	UCWorkHour,
+	UCActivityCategory
 } from './types';
+import {
+	castAsGradeLevel,
+	castAsParticipationTiming,
+	castAsRecognitionLevel,
+	castAsString,
+	isEmptyCell,
+	rowStartsWithNumber,
+	stripLeadingEmptyCells
+} from './utils/sheets';
 import { orderGradeLevels, orderRecognitions, orderTimings } from './utils/sorting';
 
 const parseGradeLevel = <T extends { grade_level: string }>(
@@ -190,6 +200,195 @@ const serializeUCWorkbook = (data: {
 	return { activities: serializedActivities, honors: [] };
 };
 
+const importCAFrWorkbook = async (
+	wb: WorkBook
+): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+	const result = { activities: [] as Activity[], honors: [] as Honor[] };
+
+	// find the first sheet of the workbook
+	const sheet = wb.Sheets[wb.SheetNames[0]];
+
+	// find all the rows that start with numbers in the first column
+	const rows = utils.sheet_to_json(sheet, { header: 1 }) as unknown[][];
+	const usefulRows = rows.map(stripLeadingEmptyCells).filter(rowStartsWithNumber) as unknown[][];
+
+	let reading: 'activities' | 'honors' | null = null;
+
+	for (const row of usefulRows) {
+		if (row[0] === 1 || (typeof row[0] === 'string' && row[0].trim() === '1')) {
+			if (reading === null) {
+				reading = 'activities';
+			} else if (reading === 'activities') {
+				reading = 'honors';
+			}
+		}
+		if (reading === null) continue;
+
+		// if the row has no content other than the order, skip this row
+		if (row.slice(1, 9).every((cell) => isEmptyCell(cell))) {
+			continue;
+		}
+
+		if (reading === 'activities') {
+			// parse the row as an activity
+			// assumes the columns have the following order:
+			// order, grade_level, hours_per_week, weeks_per_year, type, when, position, organization, description
+			const order = result.activities.length + 1;
+			const activity = newActivity(order);
+			result.activities.push({
+				...activity,
+				grade_level: castAsGradeLevel(row[1]),
+				hours_per_week: castAsString(row[2]),
+				weeks_per_year: castAsString(row[3]),
+				type: castAsString(row[4]),
+				when: castAsParticipationTiming(row[5]),
+				position: castAsString(row[6], 'TODO'),
+				organization: castAsString(row[7], 'TODO'),
+				description: castAsString(row[8])
+			});
+		} else if (reading === 'honors') {
+			// parse the row as an honor
+			// assumes the columns have the following order:
+			// order, grade_level, blank, blank, level_of_recognition, blank, blank, title,
+			const order = result.honors.length + 1;
+			const honor = newHonor(order);
+			result.honors.push({
+				...honor,
+				grade_level: castAsGradeLevel(row[1]),
+				level_of_recognition: castAsRecognitionLevel(row[4], 'caf'),
+				title: castAsString(row[7], 'TODO')
+			});
+		}
+	}
+
+	return result;
+};
+
+const importUCWorkbook = async (
+	wb: WorkBook
+): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+	const result = { activities: [] as Activity[], honors: [] as Honor[] };
+
+	// find the first sheet of the workbook
+	const sheet = wb.Sheets[wb.SheetNames[0]];
+
+	// find all the rows that start with numbers in the first column
+	const rows = utils.sheet_to_json(sheet, { header: 1 }) as unknown[][];
+	const usefulRows = rows.map(stripLeadingEmptyCells).filter(rowStartsWithNumber) as unknown[][];
+
+	let ucCategory: UCActivityCategory = '';
+
+	for (const row of usefulRows) {
+		if (row[0] === 1 || (typeof row[0] === 'string' && row[0].trim() === '1')) {
+			switch (ucCategory) {
+				case '':
+					ucCategory = 'award';
+					break;
+				case 'award':
+					ucCategory = 'edu-prep';
+					break;
+				case 'edu-prep':
+					ucCategory = 'ec';
+					break;
+				case 'ec':
+					ucCategory = 'course';
+					break;
+				case 'course':
+					ucCategory = 'volunteer';
+					break;
+				case 'volunteer':
+					ucCategory = 'work';
+					break;
+				default:
+					continue;
+			}
+		}
+
+		// if the row has no content other than the order, skip this row
+		if (row.slice(1, 10).every((cell) => isEmptyCell(cell))) {
+			continue;
+		}
+
+		const order = result.activities.length + 1;
+		const activity = { ...newActivity(order), uc_category: ucCategory };
+		switch (ucCategory) {
+			case '':
+				continue;
+			case 'award':
+				// assumes the columns have the following order:
+				// order, name, blank, blank, award_req, blank, blank, description, blank, level of recognition
+				result.activities.push({
+					...activity,
+					name: castAsString(row[1]),
+					award_req: castAsString(row[4]),
+					description: castAsString(row[7]),
+					level_of_recognition: castAsRecognitionLevel(row[9], 'uc')
+				});
+				break;
+			case 'edu-prep':
+			case 'course':
+				// assumes the columns have the following order:
+				// order, name, blank, blank, program_description, blank, blank, grade_level, hours_per_week, weeks_per_year
+				result.activities.push({
+					...activity,
+					name: castAsString(row[1]),
+					program_description: castAsString(row[4]),
+					grade_level: castAsGradeLevel(row[7]),
+					hours_per_week: castAsString(row[8]),
+					weeks_per_year: castAsString(row[9])
+				});
+				break;
+			case 'ec':
+				// assumes the columns have the following order:
+				// order, name, blank, blank, description, blank, blank, grade_level, hours_per_week, weeks_per_year
+				result.activities.push({
+					...activity,
+					name: castAsString(row[1]),
+					description: castAsString(row[4]),
+					grade_level: castAsGradeLevel(row[7]),
+					hours_per_week: castAsString(row[8]),
+					weeks_per_year: castAsString(row[9])
+				});
+				break;
+			case 'volunteer':
+				// assumes the columns have the following order:
+				// order, name, blank, blank, program_description, blank, description, grade_level, hours_per_week, weeks_per_year
+				result.activities.push({
+					...activity,
+					name: castAsString(row[1]),
+					program_description: castAsString(row[4]),
+					description: castAsString(row[6]),
+					grade_level: castAsGradeLevel(row[7]),
+					hours_per_week: castAsString(row[8]),
+					weeks_per_year: castAsString(row[9])
+				});
+				break;
+			case 'work':
+				// assumes the columns have the following order:
+				// order, job_title, name, program_description, blank, description
+				result.activities.push({
+					...activity,
+					job_title: castAsString(row[1]),
+					name: castAsString(row[2]),
+					program_description: castAsString(row[3]),
+					description: castAsString(row[5])
+				});
+				break;
+			default:
+				console.error('Unknown UC category:', ucCategory, row);
+		}
+	}
+
+	return result;
+};
+
+const importCATrWorkbook = async (
+	wb: WorkBook
+): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+	console.log(wb);
+	return { activities: [], honors: [] }; // TODO
+};
+
 export const newActivity = (order: number): Activity => {
 	return {
 		// common and CA fields
@@ -244,6 +443,7 @@ export const APPLICATION_SYSTEMS: Record<string, Context> = {
 			maxEntries: 10
 		},
 		parser: parseWorkbook,
+		importer: importCAFrWorkbook,
 		serialize: serializeCAFrWorkbook
 	},
 	CA_TRANSFER: {
@@ -260,6 +460,7 @@ export const APPLICATION_SYSTEMS: Record<string, Context> = {
 			maxEntries: -1
 		},
 		parser: parseWorkbook,
+		importer: importCATrWorkbook,
 		serialize: serializeCATrWorkbook
 	},
 	UC: {
@@ -273,6 +474,7 @@ export const APPLICATION_SYSTEMS: Record<string, Context> = {
 			maxEntries: 20
 		},
 		parser: parseWorkbook,
+		importer: importUCWorkbook,
 		serialize: serializeUCWorkbook
 	}
 };

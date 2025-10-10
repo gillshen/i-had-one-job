@@ -35,7 +35,11 @@ export const openFile = async (
 	if (!wb.SheetNames.length) {
 		throw new Error('The workbook contains no sheets.');
 	}
-	return params.parser(wb);
+	try {
+		return params.parser(wb);
+	} catch (e) {
+		throw new Error(`Failed to parse the workbook: ${(e as Error).message}`);
+	}
 };
 
 export const saveFile = async (
