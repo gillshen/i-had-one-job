@@ -1,6 +1,6 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import type { CheckMenuItem, MenuItem } from '@tauri-apps/api/menu';
-import type { Context, Activity, Honor } from './types';
+import type { Context, Activity, Honor, SerializedGeneralData } from './types';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 import { APPLICATION_SYSTEMS, newActivity, newHonor } from './applicationSystems';
 
@@ -58,6 +58,7 @@ export class GlobalState {
 		this._menuItems['open-file']?.setEnabled(!!this.context);
 		this._menuItems['save-file']?.setEnabled(!!this.context);
 		this._menuItems['save-file-as']?.setEnabled(!!this.context);
+		this._menuItems['export-excel']?.setEnabled(!!this.context);
 
 		// set the check statuses of system menu items
 		this._checkMenuItems['context-caf']?.setChecked(this.context?.id === 'CA_FRESHMAN');
@@ -286,6 +287,25 @@ export class GlobalState {
 		if (filePath) {
 			this.filePath = filePath;
 			await this.save();
+		}
+	}
+
+	async exportAsExcel() {
+		if (!this.context) return;
+		const filePath = (await getSaveFilePath({ name: 'Excel', extensions: ['xlsx'] })) ?? '';
+		if (filePath) {
+			try {
+				console.log(filePath);
+				const data = this.context.serialize({
+					activities: this.activities,
+					honors: this.honors
+				}) as SerializedGeneralData;
+				this.context.exportAsExcel({ data, filePath });
+				// TODO if successful, show a success message and give user the option to open the file
+			} catch (e: unknown) {
+				this.error = `${e}`;
+				this.errorDialog = true;
+			}
 		}
 	}
 

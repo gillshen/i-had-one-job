@@ -7,7 +7,7 @@ export const stripLeadingEmptyCells = (row: unknown[]): unknown[] => {
 	while (i < row.length && isEmptyCell(row[i])) {
 		i++;
 	}
-	return row.slice(i, row.length - 1);
+	return row.slice(i, row.length);
 };
 
 export const rowStartsWithNumber = (row: unknown[]): boolean =>
@@ -31,7 +31,7 @@ export const castAsGradeLevel = (value: unknown): Set<string> => {
 export const castAsParticipationTiming = (value: unknown): Set<string> => {
 	const stringValue = castAsString(value);
 	const timings = stringValue
-		.split(/[,;\n]/)
+		.split(/[,;/\n]/)
 		.map((s) => s.trim().toLowerCase())
 		.filter((when) => when.match(/^(during school year|during school break|all year)$/));
 	return new Set(timings);

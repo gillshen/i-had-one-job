@@ -117,6 +117,11 @@ export type SerializedCAFrData = {
 
 export type SerializedUCData = { activities: SerializedUCActivity[]; honors: [] };
 
+export type SerializedGeneralData = Prettify<{
+	activities: (SerializedCAFrActivity & SerializedUCActivity)[];
+	honors: RawHonor[];
+}>;
+
 export type Context = {
 	id: string;
 	name: string;
@@ -132,8 +137,11 @@ export type Context = {
 	};
 	parser: (wb: WorkBook) => Promise<{ activities: Activity[]; honors: Honor[] }>;
 	importer: (wb: WorkBook) => Promise<{ activities: Activity[]; honors: Honor[] }>;
+
 	serialize: (data: {
 		activities: Activity[];
 		honors: Honor[];
 	}) => SerializedCAFrData | SerializedUCData;
+
+	exportAsExcel: (params: { data: SerializedGeneralData; filePath: string }) => void;
 };

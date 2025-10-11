@@ -46,11 +46,11 @@ export const saveFile = async (
 	filePath: string,
 	data: SerializedCAFrData | SerializedUCData
 ): Promise<void> => {
-	// Write `Data` to an Excel file with two sheets, "Activities" and "Honors"
+	// Write `data` to an Excel file with two sheets, "Activities" and "Honors"
 	const { activities, honors } = data;
 
-	if (activities.length === 0) {
-		throw new Error('No activities to save.');
+	if (activities.length === 0 && honors.length === 0) {
+		throw new Error('No activities or honors to save.');
 	}
 
 	let wb: WorkBook;
@@ -70,6 +70,10 @@ export const saveFile = async (
 			}
 		};
 	}
-	const wbout = write(wb, { bookType: 'xlsx', type: 'array' });
-	await writeFile(filePath, new Uint8Array(wbout));
+	saveWorkbookToFile(wb, filePath);
+};
+
+export const saveWorkbookToFile = async (wb: WorkBook, filePath: string): Promise<void> => {
+	const wbOut = write(wb, { bookType: 'xlsx', type: 'array' });
+	await writeFile(filePath, new Uint8Array(wbOut));
 };

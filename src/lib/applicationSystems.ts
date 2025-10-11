@@ -20,6 +20,7 @@ import {
 	stripLeadingEmptyCells
 } from './utils/sheets';
 import { orderGradeLevels, orderRecognitions, orderTimings } from './utils/sorting';
+import { exportCAFrWorkbook, exportCATrWorkbook, exportUCWorkbook } from './utils/export';
 
 const parseGradeLevel = <T extends { grade_level: string }>(
 	item: T
@@ -444,7 +445,8 @@ export const APPLICATION_SYSTEMS: Record<string, Context> = {
 		},
 		parser: parseWorkbook,
 		importer: importCAFrWorkbook,
-		serialize: serializeCAFrWorkbook
+		serialize: serializeCAFrWorkbook,
+		exportAsExcel: exportCAFrWorkbook
 	},
 	CA_TRANSFER: {
 		id: 'CA_TRANSFER',
@@ -461,7 +463,8 @@ export const APPLICATION_SYSTEMS: Record<string, Context> = {
 		},
 		parser: parseWorkbook,
 		importer: importCATrWorkbook,
-		serialize: serializeCATrWorkbook
+		serialize: serializeCATrWorkbook,
+		exportAsExcel: exportCATrWorkbook
 	},
 	UC: {
 		id: 'UC',
@@ -475,6 +478,7 @@ export const APPLICATION_SYSTEMS: Record<string, Context> = {
 		},
 		parser: parseWorkbook,
 		importer: importUCWorkbook,
-		serialize: serializeUCWorkbook
+		serialize: serializeUCWorkbook,
+		exportAsExcel: exportUCWorkbook
 	}
 };
