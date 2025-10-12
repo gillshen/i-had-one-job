@@ -1,10 +1,10 @@
 export const isEmptyCell = (cell: unknown): boolean =>
 	cell === null || cell === undefined || (typeof cell === 'string' && !(cell as string).trim());
 
-export const stripLeadingEmptyCells = (row: unknown[]): unknown[] => {
-	// remove the empty cells from the start of the row
+export const stripLeadingEmptyCells = (row: unknown[], maxStrip: number = 5): unknown[] => {
+	// remove (no more than `maxStrip`) empty cells from the start of the row
 	let i = 0;
-	while (i < row.length && isEmptyCell(row[i])) {
+	while (i < row.length && i <= maxStrip && isEmptyCell(row[i])) {
 		i++;
 	}
 	return row.slice(i, row.length);
