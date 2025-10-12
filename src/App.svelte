@@ -369,6 +369,52 @@
 	</Dialog.Content>
 </Dialog.Root>
 
+<Dialog.Root bind:open={gs.exportSuccessDialog}>
+	<Dialog.Content
+		class="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg"
+	>
+		<Dialog.Title class="mb-0 text-lg font-semibold">File Exported</Dialog.Title>
+		<Dialog.Description class="mb-6 text-sm text-zinc-600">
+			The exported file is not styled. You may want to style it manually. Do you want to open it
+			now?
+		</Dialog.Description>
+		<div class="mx-auto flex w-[240px] flex-col justify-center gap-4">
+			<Button
+				type="button"
+				variant="default"
+				class="min-w-24 rounded-full"
+				onclick={async () => {
+					await gs.openExportedExternal();
+					gs.exportSuccessDialog = false;
+				}}
+			>
+				Open File
+			</Button>
+			<Button
+				type="button"
+				variant="secondary"
+				class="min-w-24 rounded-full"
+				onclick={async () => {
+					await gs.revealExportedInDir();
+					gs.exportSuccessDialog = false;
+				}}
+			>
+				Show File in Folder
+			</Button>
+			<Button
+				type="button"
+				variant="secondary"
+				class="min-w-24 rounded-full"
+				onclick={async () => {
+					gs.exportSuccessDialog = false;
+				}}
+			>
+				Close
+			</Button>
+		</div>
+	</Dialog.Content>
+</Dialog.Root>
+
 <Dialog.Root bind:open={gs.errorDialog}>
 	<Dialog.Content
 		class="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg"

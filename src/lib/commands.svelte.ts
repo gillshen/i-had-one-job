@@ -1,4 +1,5 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { openPath, revealItemInDir } from '@tauri-apps/plugin-opener';
 import type { CheckMenuItem, MenuItem } from '@tauri-apps/api/menu';
 import type { Context, Activity, Honor, SerializedGeneralData } from './types';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
@@ -40,6 +41,8 @@ export class GlobalState {
 			this.arraysEqual(this.honors, this._savedHonors)
 		)
 	);
+	private _exportedFilePath: string = $state('');
+	private _exportSuccessDialog: boolean = $state(false);
 
 	private _error: string = $state('');
 	private _errorDialog: boolean = $state(false);
@@ -169,6 +172,22 @@ export class GlobalState {
 		return this._hasUnsavedChanges;
 	}
 
+	get exportedFilePath() {
+		return this._exportedFilePath;
+	}
+
+	set exportedFilePath(value: string) {
+		this._exportedFilePath = value;
+	}
+
+	get exportSuccessDialog() {
+		return this._exportSuccessDialog;
+	}
+
+	set exportSuccessDialog(value: boolean) {
+		this._exportSuccessDialog = value;
+	}
+
 	get error() {
 		return this._error;
 	}
@@ -262,6 +281,14 @@ export class GlobalState {
 		}
 	}
 
+	async openExportedExternal() {
+		await openPath(this.exportedFilePath);
+	}
+
+	async revealExportedInDir() {
+		await revealItemInDir(this.exportedFilePath);
+	}
+
 	async save() {
 		if (!this.context) return;
 		if (!this.filePath) {
@@ -301,7 +328,9 @@ export class GlobalState {
 					honors: this.honors
 				}) as SerializedGeneralData;
 				this.context.exportAsExcel({ data, filePath });
-				// TODO if successful, show a success message and give user the option to open the file
+				// if successful, show a success message and give user the option to open the file
+				this.exportedFilePath = filePath;
+				this.exportSuccessDialog = true;
 			} catch (e: unknown) {
 				this.error = `${e}`;
 				this.errorDialog = true;

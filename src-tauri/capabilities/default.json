@@ -20,6 +20,15 @@
     "fs:allow-app-write",
     "fs:allow-app-write-recursive",
     "clipboard-manager:default",
-    "clipboard-manager:allow-write-text"
+    "clipboard-manager:allow-write-text",
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    },
+    "opener:allow-reveal-item-in-dir"
   ]
 }
