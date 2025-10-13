@@ -161,12 +161,11 @@ const serializeCAFrWorkbook = (data: {
 	return { activities: serializedActivities, honors: serializedHonors };
 };
 
-// TODO
 const serializeCATrWorkbook = (data: {
 	activities: Activity[];
 	honors: Honor[];
 }): { activities: RawActivity[]; honors: RawHonor[] } => {
-	console.log(data);
+	console.log(data); // TODO
 	return { activities: [], honors: [] };
 };
 
@@ -174,7 +173,6 @@ const serializeUCWorkbook = (data: {
 	activities: Activity[];
 	honors: Honor[];
 }): { activities: SerializedUCActivity[]; honors: [] } => {
-	console.log(data);
 	const serializedActivities = data.activities
 		.map(serializeGradeLevel)
 		.map(serializeRecLevel)
@@ -386,8 +384,8 @@ const importUCWorkbook = async (
 const importCATrWorkbook = async (
 	wb: WorkBook
 ): Promise<{ activities: Activity[]; honors: Honor[] }> => {
-	console.log(wb);
-	return { activities: [], honors: [] }; // TODO
+	console.log(wb); // TODO
+	return { activities: [], honors: [] };
 };
 
 export const newActivity = (order: number): Activity => {

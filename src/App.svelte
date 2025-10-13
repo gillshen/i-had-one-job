@@ -30,7 +30,7 @@
 		const appName = 'Activity List Editor';
 		const fileName = gs.filePath.split('\\').pop() || 'Untitled';
 		const title = `${fileName}${gs.hasUnsavedChanges ? ' *' : ''} - ${appName}`;
-		getCurrentWindow().setTitle(title).then().catch(console.log);
+		getCurrentWindow().setTitle(title).then().catch(console.error);
 		gs.updateMenuItems();
 	});
 
@@ -384,8 +384,8 @@
 				variant="default"
 				class="min-w-24 rounded-full"
 				onclick={async () => {
-					await gs.openExportedExternal();
 					gs.exportSuccessDialog = false;
+					await gs.openExportedExternal();
 				}}
 			>
 				Open File
@@ -395,8 +395,8 @@
 				variant="secondary"
 				class="min-w-24 rounded-full"
 				onclick={async () => {
-					await gs.revealExportedInDir();
 					gs.exportSuccessDialog = false;
+					await gs.revealExportedInDir();
 				}}
 			>
 				Show File in Folder
@@ -405,11 +405,9 @@
 				type="button"
 				variant="secondary"
 				class="min-w-24 rounded-full"
-				onclick={async () => {
-					gs.exportSuccessDialog = false;
-				}}
+				onclick={async () => (gs.exportSuccessDialog = false)}
 			>
-				Close
+				Close Dialog
 			</Button>
 		</div>
 	</Dialog.Content>

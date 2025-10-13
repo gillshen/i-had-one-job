@@ -143,5 +143,5 @@ export type Context = {
 		honors: Honor[];
 	}) => SerializedCAFrData | SerializedUCData;
 
-	exportAsExcel: (params: { data: SerializedGeneralData; filePath: string }) => void;
+	exportAsExcel: (params: { data: SerializedGeneralData; filePath: string }) => Promise<void>;
 };

@@ -282,11 +282,21 @@ export class GlobalState {
 	}
 
 	async openExportedExternal() {
-		await openPath(this.exportedFilePath);
+		try {
+			await openPath(this.exportedFilePath);
+		} catch (err: unknown) {
+			this.error = `${err}`;
+			this.errorDialog = true;
+		}
 	}
 
 	async revealExportedInDir() {
-		await revealItemInDir(this.exportedFilePath);
+		try {
+			await revealItemInDir(this.exportedFilePath);
+		} catch (err: unknown) {
+			this.error = `${err}`;
+			this.errorDialog = true;
+		}
 	}
 
 	async save() {
@@ -322,12 +332,11 @@ export class GlobalState {
 		const filePath = (await getSaveFilePath({ name: 'Excel', extensions: ['xlsx'] })) ?? '';
 		if (filePath) {
 			try {
-				console.log(filePath);
 				const data = this.context.serialize({
 					activities: this.activities,
 					honors: this.honors
 				}) as SerializedGeneralData;
-				this.context.exportAsExcel({ data, filePath });
+				await this.context.exportAsExcel({ data, filePath });
 				// if successful, show a success message and give user the option to open the file
 				this.exportedFilePath = filePath;
 				this.exportSuccessDialog = true;

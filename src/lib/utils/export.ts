@@ -2,10 +2,10 @@ import * as XLSX from 'xlsx';
 import type { SerializedGeneralData, SerializedUCActivity, UCActivityCategory } from '$lib/types';
 import { saveWorkbookToFile } from './fs';
 
-export const exportCAFrWorkbook = (params: {
+export const exportCAFrWorkbook = async (params: {
 	data: SerializedGeneralData;
 	filePath: string;
-}): void => {
+}): Promise<void> => {
 	const { data, filePath } = params;
 
 	const aoa = [
@@ -130,21 +130,20 @@ export const exportCAFrWorkbook = (params: {
 	}
 
 	XLSX.utils.book_append_sheet(wb, ws, 'Common App');
-	saveWorkbookToFile(wb, filePath);
+	await saveWorkbookToFile(wb, filePath);
 };
 
-export const exportCATrWorkbook = (params: {
+export const exportCATrWorkbook = async (params: {
 	data: SerializedGeneralData;
 	filePath: string;
-}): void => {
-	// TODO
-	console.log(params);
+}): Promise<void> => {
+	console.log(params); // TODO
 };
 
-export const exportUCWorkbook = (params: {
+export const exportUCWorkbook = async (params: {
 	data: SerializedGeneralData;
 	filePath: string;
-}): void => {
+}): Promise<void> => {
 	const {
 		data: { activities },
 		filePath
@@ -527,7 +526,7 @@ export const exportUCWorkbook = (params: {
 	}
 
 	XLSX.utils.book_append_sheet(wb, ws, 'Common App');
-	saveWorkbookToFile(wb, filePath);
+	await saveWorkbookToFile(wb, filePath);
 };
 
 const getUCActivities = (
