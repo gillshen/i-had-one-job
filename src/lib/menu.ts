@@ -41,11 +41,25 @@ export const buildMenu = async (gs: GlobalState) => {
 
 	const exportExcel = await MenuItem.new({
 		id: 'export_excel',
-		text: 'Export...',
+		text: 'Excel',
 		accelerator: 'CmdOrCtrl+Shift+E',
 		action: gs.exportAsExcel.bind(gs)
 	});
 	gs.setMenuItem('export-excel', exportExcel);
+
+	const exportJSON = await MenuItem.new({
+		id: 'export_json',
+		text: 'JSON',
+		accelerator: 'CmdOrCtrl+Shift+J',
+		action: gs.exportAsJSON.bind(gs)
+	});
+	gs.setMenuItem('export-json', exportJSON);
+
+	const exportMenu = await Submenu.new({
+		text: 'Export...',
+		items: [exportExcel, exportJSON]
+	});
+	gs.setMenuItem('export-menu', exportMenu);
 
 	const quit = await MenuItem.new({
 		id: 'quit',
@@ -56,7 +70,7 @@ export const buildMenu = async (gs: GlobalState) => {
 
 	const fileSubmenu = await Submenu.new({
 		text: 'File',
-		items: [newFile, openFile, separator, saveFile, saveFileAs, exportExcel, separator, quit]
+		items: [newFile, openFile, separator, saveFile, saveFileAs, exportMenu, separator, quit]
 	});
 
 	const contextCAF = await CheckMenuItem.new({
@@ -212,6 +226,9 @@ export const buildMenu = async (gs: GlobalState) => {
 		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'e') {
 			e.preventDefault();
 			await gs.exportAsExcel();
+		} else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'j') {
+			e.preventDefault();
+			await gs.exportAsJSON();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
 			e.preventDefault();
 			await gs.save();

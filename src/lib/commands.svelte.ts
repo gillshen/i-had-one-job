@@ -1,6 +1,7 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openPath, revealItemInDir } from '@tauri-apps/plugin-opener';
-import type { CheckMenuItem, MenuItem } from '@tauri-apps/api/menu';
+import { writeTextFile } from '@tauri-apps/plugin-fs';
+import type { CheckMenuItem, MenuItem, Submenu } from '@tauri-apps/api/menu';
 import type { Context, Activity, Honor, SerializedGeneralData } from './types';
 import { getOpenFilePath, getSaveFilePath, openFile, saveFile } from './utils/fs';
 import { APPLICATION_SYSTEMS, newActivity, newHonor } from './applicationSystems';
@@ -20,7 +21,7 @@ type PendingOperation =
 	| null;
 
 export class GlobalState {
-	private _menuItems: Record<string, MenuItem> = {};
+	private _menuItems: Record<string, MenuItem | Submenu> = {};
 	private _checkMenuItems: Record<string, CheckMenuItem> = {};
 	private _context: Context | null = $state(null);
 	private _activities: Activity[] = $state([]);
@@ -47,7 +48,7 @@ export class GlobalState {
 	private _error: string = $state('');
 	private _errorDialog: boolean = $state(false);
 
-	setMenuItem(id: string, item: MenuItem) {
+	setMenuItem(id: string, item: MenuItem | Submenu) {
 		this._menuItems[id] = item;
 	}
 
@@ -61,7 +62,9 @@ export class GlobalState {
 		this._menuItems['open-file']?.setEnabled(!!this.context);
 		this._menuItems['save-file']?.setEnabled(!!this.context);
 		this._menuItems['save-file-as']?.setEnabled(!!this.context);
+		this._menuItems['export-menu']?.setEnabled(!!this.context);
 		this._menuItems['export-excel']?.setEnabled(!!this.context);
+		this._menuItems['export-json']?.setEnabled(!!this.context);
 
 		// set the check statuses of system menu items
 		this._checkMenuItems['context-caf']?.setChecked(this.context?.id === 'CA_FRESHMAN');
@@ -327,17 +330,19 @@ export class GlobalState {
 		}
 	}
 
-	async exportAsExcel() {
+	private async _export(
+		options: { name: string; extensions: string[] },
+		exporter: (data: SerializedGeneralData, filePath: string) => Promise<void>
+	) {
 		if (!this.context) return;
-		const filePath = (await getSaveFilePath({ name: 'Excel', extensions: ['xlsx'] })) ?? '';
+		const filePath = (await getSaveFilePath(options)) ?? '';
 		if (filePath) {
 			try {
 				const data = this.context.serialize({
 					activities: this.activities,
 					honors: this.honors
 				}) as SerializedGeneralData;
-				await this.context.exportAsExcel({ data, filePath });
-				// if successful, show a success message and give user the option to open the file
+				await exporter(data, filePath);
 				this.exportedFilePath = filePath;
 				this.exportSuccessDialog = true;
 			} catch (e: unknown) {
@@ -345,6 +350,18 @@ export class GlobalState {
 				this.errorDialog = true;
 			}
 		}
+	}
+
+	async exportAsExcel() {
+		await this._export({ name: 'Excel', extensions: ['xlsx'] }, (data, filePath) =>
+			this.context!.exportAsExcel({ data, filePath })
+		);
+	}
+
+	async exportAsJSON() {
+		await this._export({ name: 'JSON', extensions: ['json'] }, async (data, filePath) => {
+			await writeTextFile(filePath, JSON.stringify(data, null, 2));
+		});
 	}
 
 	newActivity() {
