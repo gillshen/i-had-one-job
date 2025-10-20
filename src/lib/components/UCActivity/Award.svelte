@@ -4,7 +4,7 @@
 	import UCSection from './UCSection.svelte';
 	import GradeLevels from './GradeLevels.svelte';
 	import GradeLevelsCompact from './GradeLevelsCompact.svelte';
-	import { orderRecognitions } from '$lib/utils/sorting';
+	import { orderRecognitionLevels } from '$lib/utils/sorting';
 
 	type Props = {
 		activity: Activity;
@@ -15,7 +15,7 @@
 	const getRecLevels = (recLevels: Set<string>): string[] =>
 		Array.from(recLevels)
 			.map((lvl) => lvl.trim())
-			.sort(orderRecognitions)
+			.sort(orderRecognitionLevels)
 			.map(formatRecognitionLevel);
 
 	const formatRecognitionLevel = (lvl: string): string => {

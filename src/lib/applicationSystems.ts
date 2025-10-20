@@ -1,14 +1,18 @@
 import { type WorkBook, utils } from 'xlsx';
 import type {
+	Context,
 	Activity,
 	RawActivity,
 	Honor,
-	Context,
 	RawHonor,
-	SerializedCAFrActivity,
-	SerializedUCActivity,
 	UCWorkHour,
-	UCActivityCategory
+	UCActivityCategory,
+	SerializedCAFrActivity,
+	SerializedCATrData,
+	SerializedCAFrData,
+	SerializedUCActivity,
+	SerializedUCData,
+	GeneralData
 } from './types';
 import {
 	castAsGradeLevel,
@@ -19,7 +23,12 @@ import {
 	rowStartsWithNumber,
 	stripLeadingEmptyCells
 } from './utils/sheets';
-import { orderGradeLevels, orderRecognitions, orderTimings } from './utils/sorting';
+import {
+	orderGradeLevels,
+	orderRecognitionLevels,
+	orderRecognitionTypes,
+	orderTimings
+} from './utils/sorting';
 import { exportCAFrWorkbook, exportCATrWorkbook, exportUCWorkbook } from './utils/export';
 
 const parseGradeLevel = <T extends { grade_level: string }>(
@@ -29,7 +38,7 @@ const parseGradeLevel = <T extends { grade_level: string }>(
 		...item,
 		grade_level: new Set(
 			item.grade_level
-				.toString()
+				?.toString()
 				?.split(/,\s*|\s+/)
 				.map((grade) => grade.toLowerCase().trim())
 				.filter((grade) => grade.match(/^(9|10|11|12|pg)$/))
@@ -55,7 +64,21 @@ const parseRecLevel = <T extends { level_of_recognition: string }>(
 		level_of_recognition: new Set(
 			item.level_of_recognition
 				?.split(/,\s*/)
-				.map((lvl) => lvl.toLowerCase().trim())
+				.map((recLevel) => recLevel.toLowerCase().trim())
+				.filter(Boolean) ?? []
+		)
+	};
+};
+
+const parseRecType = <T extends { type_of_recognition: string }>(
+	item: T
+): Omit<T, 'type_of_recognition'> & { type_of_recognition: Set<string> } => {
+	return {
+		...item,
+		type_of_recognition: new Set(
+			item.type_of_recognition
+				?.split(/,\s*/)
+				.map((recType) => recType.toLowerCase().trim())
 				.filter(Boolean) ?? []
 		)
 	};
@@ -66,7 +89,9 @@ const serializeRecLevel = <T extends { level_of_recognition: Set<string> }>(
 ): Omit<T, 'level_of_recognition'> & { level_of_recognition: string } => {
 	return {
 		...item,
-		level_of_recognition: Array.from(item.level_of_recognition).sort(orderRecognitions).join(', ')
+		level_of_recognition: Array.from(item.level_of_recognition)
+			.sort(orderRecognitionLevels)
+			.join(', ')
 	};
 };
 
@@ -97,9 +122,7 @@ const serializeUCWorkHours = <T extends { work_hours: UCWorkHour[] }>(
 	};
 };
 
-const parseWorkbook = async (
-	wb: WorkBook
-): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+const parseWorkbook = async (wb: WorkBook): Promise<GeneralData> => {
 	// find the sheet named "Activities" (case insensitive); otherwise throw an error
 	const activitiesSheetName = wb.SheetNames.find((name) => name.toLowerCase() === 'activities');
 	if (!activitiesSheetName) {
@@ -110,6 +133,7 @@ const parseWorkbook = async (
 	const activities = rawActivities
 		.map(parseGradeLevel)
 		.map(parseRecLevel)
+		.map(parseRecType)
 		.map(parseUCWorkHours)
 		.map((a) => ({
 			// supply default fields to prevent rendering errors
@@ -136,10 +160,7 @@ const parseWorkbook = async (
 	return { activities, honors };
 };
 
-const serializeCAFrWorkbook = (data: {
-	activities: Activity[];
-	honors: Honor[];
-}): { activities: SerializedCAFrActivity[]; honors: RawHonor[] } => {
+const serializeCAFrWorkbook = (data: GeneralData): SerializedCAFrData => {
 	const serializedActivities = data.activities.map(serializeGradeLevel).map((a) => ({
 		order: a.order,
 		type: a.type,
@@ -155,24 +176,50 @@ const serializeCAFrWorkbook = (data: {
 	})) as SerializedCAFrActivity[];
 	console.table(serializedActivities);
 
-	const serializedHonors = data.honors.map(serializeGradeLevel).map(serializeRecLevel);
+	const serializedHonors = data.honors
+		.map(serializeGradeLevel)
+		.map(serializeRecLevel)
+		.map((h) => ({
+			order: h.order,
+			title: h.title,
+			grade_level: h.grade_level,
+			level_of_recognition: h.level_of_recognition,
+			comments: h.comments
+		}));
 	console.table(serializedHonors);
 
 	return { activities: serializedActivities, honors: serializedHonors };
 };
 
-const serializeCATrWorkbook = (data: {
-	activities: Activity[];
-	honors: Honor[];
-}): { activities: RawActivity[]; honors: RawHonor[] } => {
+const serializeCATrWorkbook = (data: GeneralData): SerializedCATrData => {
 	console.log(data); // TODO
-	return { activities: [], honors: [] };
+	const serializedActivities = data.activities.map((a) => ({
+		order: a.order,
+		type: a.type,
+		organization: a.organization,
+		country: a.country,
+		job_start_date: a.job_start_date,
+		job_is_continuing: a.job_is_continuing,
+		job_end_date: a.job_end_date,
+		job_status: a.job_status,
+		name: a.name,
+		type_of_recognition: Array.from(a.type_of_recognition).sort(orderRecognitionTypes).join(', '),
+		description: a.description,
+		comments: a.comments
+	}));
+	const serializedHonors = data.honors.map((h) => ({
+		order: h.order,
+		title: h.title,
+		type: h.type,
+		org: h.org,
+		date: h.date,
+		description: h.description,
+		comments: h.comments
+	}));
+	return { activities: serializedActivities, honors: serializedHonors };
 };
 
-const serializeUCWorkbook = (data: {
-	activities: Activity[];
-	honors: Honor[];
-}): { activities: SerializedUCActivity[]; honors: [] } => {
+const serializeUCWorkbook = (data: GeneralData): SerializedUCData => {
 	const serializedActivities = data.activities
 		.map(serializeGradeLevel)
 		.map(serializeRecLevel)
@@ -199,9 +246,7 @@ const serializeUCWorkbook = (data: {
 	return { activities: serializedActivities, honors: [] };
 };
 
-const importCAFrWorkbook = async (
-	wb: WorkBook
-): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+const importCAFrWorkbook = async (wb: WorkBook): Promise<GeneralData> => {
 	const result = { activities: [] as Activity[], honors: [] as Honor[] };
 
 	// find the first sheet of the workbook
@@ -241,8 +286,8 @@ const importCAFrWorkbook = async (
 				weeks_per_year: castAsString(row[3]),
 				type: castAsString(row[4]),
 				when: castAsParticipationTiming(row[5]),
-				position: castAsString(row[6], 'TODO'),
-				organization: castAsString(row[7], 'TODO'),
+				position: castAsString(row[6]),
+				organization: castAsString(row[7]),
 				description: castAsString(row[8])
 			});
 		} else if (reading === 'honors') {
@@ -263,9 +308,7 @@ const importCAFrWorkbook = async (
 	return result;
 };
 
-const importUCWorkbook = async (
-	wb: WorkBook
-): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+const importUCWorkbook = async (wb: WorkBook): Promise<GeneralData> => {
 	const result = { activities: [] as Activity[], honors: [] as Honor[] };
 
 	// find the first sheet of the workbook
@@ -381,9 +424,7 @@ const importUCWorkbook = async (
 	return result;
 };
 
-const importCATrWorkbook = async (
-	wb: WorkBook
-): Promise<{ activities: Activity[]; honors: Honor[] }> => {
+const importCATrWorkbook = async (wb: WorkBook): Promise<GeneralData> => {
 	console.log(wb); // TODO
 	return { activities: [], honors: [] };
 };
@@ -397,8 +438,8 @@ export const newActivity = (order: number): Activity => {
 		weeks_per_year: '',
 		type: '',
 		when: new Set(),
-		position: 'TODO',
-		organization: 'TODO',
+		position: '',
+		organization: '',
 		description: '',
 		continue_in_college: 'FALSE',
 		comments: '',
@@ -413,17 +454,25 @@ export const newActivity = (order: number): Activity => {
 		work_hours: [],
 		job_is_continuing: 'FALSE',
 		job_start_date: '',
-		job_end_date: ''
+		job_end_date: '',
+		// ca transfer fields
+		country: '',
+		job_status: '',
+		type_of_recognition: new Set()
 	};
 };
 
 export const newHonor = (order: number): Honor => {
 	return {
 		order,
+		title: '',
+		comments: '',
 		grade_level: new Set(),
-		title: 'TODO',
 		level_of_recognition: new Set(),
-		comments: ''
+		type: '',
+		org: '',
+		date: '',
+		description: ''
 	};
 };
 
@@ -454,10 +503,10 @@ export const APPLICATION_SYSTEMS: Record<string, Context> = {
 			extensions: ['cat.xlsx', 'cat.xls']
 		},
 		honors: {
-			maxEntries: -1
+			maxEntries: 1000
 		},
 		activities: {
-			maxEntries: -1
+			maxEntries: 1000
 		},
 		parser: parseWorkbook,
 		importer: importCATrWorkbook,

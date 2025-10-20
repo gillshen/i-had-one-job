@@ -10,5 +10,48 @@
     "rust-analyzer.check.extraArgs": [
         "--",
         "-Wclippy::pedantic"
-    ]
+    ],
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": [
+                    "entity.name.function",
+                    "entity.name.function.call",
+                    "meta.function-call",
+                    "meta.method-call",
+                    "entity.name.method",
+                    "variable.function",
+                    "support.function",
+                    "string",
+                    "string.quoted",
+                    "string.quoted.single",
+                    "string.quoted.double",
+                    "string.template",
+                    "string.interpolated",
+                    "entity.name.class",
+                    "entity.name.type",
+                    "entity.name.type.class",
+                    "support.class",
+                    "support.type",
+                    "punctuation",
+                    "punctuation.definition",
+                    "meta.brace.round",
+                    "meta.brace.square",
+                    "meta.brace.angle",
+                    "meta.brackets",
+                    "meta.delimiter",
+                    "meta.type-parameters",
+                    "meta.constructor-call",
+                    "entity.name.constructor",
+                    "variable.parameter",
+                    "variable.parameter.function",
+                    "variable.other",
+                    "variable.other.readwrite"
+                ],
+                "settings": {
+                    "fontStyle": "" // remove italic (and bold) for these scopes
+                }
+            }
+        ]
+    }
 }

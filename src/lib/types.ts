@@ -18,6 +18,21 @@ type CAFrActivity = {
 	comments: string;
 };
 
+export type CATrActivity = {
+	order: number;
+	type: string;
+	organization: string;
+	country: string;
+	job_is_continuing: 'TRUE' | 'FALSE';
+	job_start_date: string;
+	job_end_date: string;
+	job_status: string; // full time, part time, or temporary
+	name: string; // title
+	type_of_recognition: Set<string>;
+	description: string;
+	comments: string;
+};
+
 export const ucActivityCategory = [
 	'',
 	'award',
@@ -71,19 +86,29 @@ type UCActivity = {
 	job_end_date: string;
 };
 
-export type Activity = Prettify<CAFrActivity & UCActivity>;
+export type Activity = Prettify<CAFrActivity & CATrActivity & UCActivity>;
 
 export type RawActivity = Prettify<
-	Omit<Activity, 'grade_level' | 'when' | 'level_of_recognition' | 'work_hours'> & {
+	Omit<
+		Activity,
+		'grade_level' | 'when' | 'level_of_recognition' | 'type_of_recognition' | 'work_hours'
+	> & {
 		grade_level: string;
 		when: string;
 		level_of_recognition: string;
+		type_of_recognition: string;
 		work_hours: string;
 	}
 >;
 
+export type GeneralData = { activities: Activity[]; honors: Honor[] };
+
 export type SerializedCAFrActivity = Prettify<
 	Omit<CAFrActivity, 'grade_level' | 'when'> & { grade_level: string; when: string }
+>;
+
+export type SerializedCATrActivity = Prettify<
+	Omit<CATrActivity, 'type_of_recognition'> & { type_of_recognition: string }
 >;
 
 export type SerializedUCActivity = Prettify<
@@ -95,13 +120,25 @@ export type SerializedUCActivity = Prettify<
 >;
 
 // Honor types are exclusive to Common App systems
-export type Honor = {
+export type CAFrHonor = {
 	order: number;
-	grade_level: Set<string>;
 	title: string;
+	grade_level: Set<string>;
 	level_of_recognition: Set<string>;
 	comments: string;
 };
+
+export type CATrHonor = {
+	order: number;
+	type: string;
+	title: string;
+	org: string;
+	date: string;
+	description: string;
+	comments: string;
+};
+
+export type Honor = Prettify<CAFrHonor & CATrHonor>;
 
 export type RawHonor = Prettify<
 	Omit<Honor, 'grade_level' | 'level_of_recognition'> & {
@@ -110,15 +147,32 @@ export type RawHonor = Prettify<
 	}
 >;
 
+export type SerializedCAFrHonor = Prettify<
+	Omit<CAFrHonor, 'grade_level' | 'level_of_recognition'> & {
+		grade_level: string;
+		level_of_recognition: string;
+	}
+>;
+
+export type SerializedCATrHonor = CATrHonor;
+
 export type SerializedCAFrData = {
 	activities: SerializedCAFrActivity[];
-	honors: RawHonor[];
+	honors: SerializedCAFrHonor[];
 };
 
-export type SerializedUCData = { activities: SerializedUCActivity[]; honors: [] };
+export type SerializedCATrData = {
+	activities: SerializedCATrActivity[];
+	honors: SerializedCATrHonor[];
+};
+
+export type SerializedUCData = {
+	activities: SerializedUCActivity[];
+	honors: [];
+};
 
 export type SerializedGeneralData = Prettify<{
-	activities: (SerializedCAFrActivity & SerializedUCActivity)[];
+	activities: (SerializedCAFrActivity & SerializedCATrActivity & SerializedUCActivity)[];
 	honors: RawHonor[];
 }>;
 
@@ -135,13 +189,8 @@ export type Context = {
 	activities: {
 		maxEntries: number;
 	};
-	parser: (wb: WorkBook) => Promise<{ activities: Activity[]; honors: Honor[] }>;
-	importer: (wb: WorkBook) => Promise<{ activities: Activity[]; honors: Honor[] }>;
-
-	serialize: (data: {
-		activities: Activity[];
-		honors: Honor[];
-	}) => SerializedCAFrData | SerializedUCData;
-
+	parser: (wb: WorkBook) => Promise<GeneralData>;
+	importer: (wb: WorkBook) => Promise<GeneralData>;
+	serialize: (data: GeneralData) => SerializedCAFrData | SerializedCATrData | SerializedUCData;
 	exportAsExcel: (params: { data: SerializedGeneralData; filePath: string }) => Promise<void>;
 };

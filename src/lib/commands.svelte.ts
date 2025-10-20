@@ -62,9 +62,9 @@ export class GlobalState {
 		this._menuItems['open-file']?.setEnabled(!!this.context);
 		this._menuItems['save-file']?.setEnabled(!!this.context);
 		this._menuItems['save-file-as']?.setEnabled(!!this.context);
-		this._menuItems['export-menu']?.setEnabled(!!this.context);
-		this._menuItems['export-excel']?.setEnabled(!!this.context);
-		this._menuItems['export-json']?.setEnabled(!!this.context);
+		this._menuItems['export-menu']?.setEnabled(
+			!!this.context && this.context.id !== 'CA_TRANSFER' // TODO remove id check after implementation
+		);
 
 		// set the check statuses of system menu items
 		this._checkMenuItems['context-caf']?.setChecked(this.context?.id === 'CA_FRESHMAN');
@@ -335,6 +335,13 @@ export class GlobalState {
 		exporter: (data: SerializedGeneralData, filePath: string) => Promise<void>
 	) {
 		if (!this.context) return;
+		if (this.context.id === 'CA_TRANSFER') {
+			// TODO remove after implementation
+			this.error = 'Not implemented';
+			this.errorDialog = true;
+			return;
+		}
+
 		const filePath = (await getSaveFilePath(options)) ?? '';
 		if (filePath) {
 			try {
@@ -370,7 +377,7 @@ export class GlobalState {
 	}
 
 	newHonor() {
-		if (!this.context || this.context.id !== 'CA_FRESHMAN') return;
+		if (!this.context || this.context.id === 'UC') return;
 		this.honors = [...this.honors, newHonor(this.honors.length + 1)];
 		this.selectHonor(this.honors.length - 1);
 	}

@@ -5,7 +5,7 @@
 	import Comments from '$lib/components/Comments.svelte';
 	import { MoveUp, MoveDown, Trash } from '@lucide/svelte';
 	import type { Honor } from '$lib/types';
-	import { orderGradeLevels, orderRecognitions } from '$lib/utils/sorting';
+	import { orderGradeLevels, orderRecognitionLevels } from '$lib/utils/sorting';
 
 	type Props = {
 		honor: Honor;
@@ -35,7 +35,7 @@
 	const formatRecognitionLevels = (recLevels: Set<string>): string => {
 		return Array.from(recLevels)
 			.map((lvl) => lvl.toLowerCase().trim())
-			.sort(orderRecognitions)
+			.sort(orderRecognitionLevels)
 			.map(formatRecognitionLevel)
 			.join(', ');
 	};

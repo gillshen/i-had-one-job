@@ -83,8 +83,7 @@ export const buildMenu = async (gs: GlobalState) => {
 	const contextCAT = await CheckMenuItem.new({
 		id: 'cat_check',
 		text: 'CA Transfer',
-		action: () => (gs.context = 'CA_TRANSFER'),
-		enabled: false
+		action: () => (gs.context = 'CA_TRANSFER')
 	});
 	gs.setCheckMenuItems('context-cat', contextCAT);
 

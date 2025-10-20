@@ -13,10 +13,15 @@
 	// global state
 	import { gs, type Selection as SelectedItem } from '$lib/commands.svelte';
 
+	import ContextSelector from '$lib/components/ContextSelector.svelte';
 	import CAFrActivityCard from '$lib/components/CAFrActivityCard.svelte';
-	import CaFrActivityForm from '$lib/components/CAFrActivityForm.svelte';
-	import CaFrHonorCard from '$lib/components/CAFrHonorCard.svelte';
-	import CaFrHonorForm from '$lib/components/CAFrHonorForm.svelte';
+	import CAFrActivityForm from '$lib/components/CAFrActivityForm.svelte';
+	import CAFrHonorCard from '$lib/components/CAFrHonorCard.svelte';
+	import CAFrHonorForm from '$lib/components/CAFrHonorForm.svelte';
+	import CATrAchievementCard from '$lib/components/CATrAchievementCard.svelte';
+	import CATrAchievementForm from '$lib/components/CATrAchievementForm.svelte';
+	import CATrExperienceCard from '$lib/components/CATrExperienceCard.svelte';
+	import CATrExperienceForm from '$lib/components/CATrExperienceForm.svelte';
 	import UcActivityCard from '$lib/components/UCActivityCard.svelte';
 	import UcActivityForm from '$lib/components/UCActivityForm.svelte';
 	import { orderActivityDefault, orderUCActivityByCategory } from '$lib/utils/sorting';
@@ -61,52 +66,7 @@
 </script>
 
 {#if !gs.context}
-	<div class="flex min-h-screen w-full">
-		<div class="m-auto flex flex-col items-center p-6 pb-12">
-			<h2 class="text-lg font-semibold">Select an application system to start</h2>
-			<div class="text-sm text-zinc-600">You can switch between systems at any point</div>
-			<div class="mx-auto mt-12 flex flex-wrap content-center justify-center-safe gap-12 p-4">
-				<Button
-					variant="outline"
-					class="flex size-[140px] flex-col rounded-xl"
-					onclick={() => {
-						gs.context = 'CA_FRESHMAN';
-					}}
-				>
-					<div>Common App<br />First-Year</div>
-				</Button>
-				<Button
-					variant="outline"
-					disabled
-					class="flex size-[140px] flex-col rounded-xl"
-					onclick={() => {
-						gs.context = 'CA_TRANSFER';
-					}}
-				>
-					<div>Common App<br />Transfer</div>
-				</Button>
-				<Button
-					variant="outline"
-					class="flex size-[140px] flex-col rounded-xl"
-					onclick={() => {
-						gs.context = 'UC';
-					}}
-				>
-					<div>University of<br />California</div>
-				</Button>
-				<Button
-					variant="outline"
-					disabled
-					class="flex size-[140px] flex-col rounded-xl"
-					onclick={() => {
-						gs.context = 'COALITION';
-					}}
-				>
-					<div>Coalition</div>
-				</Button>
-			</div>
-		</div>
-	</div>
+	<ContextSelector />
 {:else}
 	<Resizable.PaneGroup direction="horizontal" class="min-h-screen w-full rounded-xl">
 		<Resizable.Pane defaultSize={50} minSize={1}>
@@ -117,7 +77,7 @@
 					<div class="flex flex-col gap-1">
 						{#each gs.honors as honor, index}
 							{#if !gs.previewMode || index < 5}
-								<CaFrHonorCard
+								<CAFrHonorCard
 									{honor}
 									previewMode={gs.previewMode}
 									isSelected={gs.isSelected({ type: 'honor', index })}
@@ -158,7 +118,7 @@
 								<CAFrActivityCard
 									{activity}
 									previewMode={gs.previewMode}
-									isSelected={gs.isSelected({ type: 'activity', index: index })}
+									isSelected={gs.isSelected({ type: 'activity', index })}
 									onclick={() => {
 										if (gs.previewMode) return;
 										gs.selectActivity(index);
@@ -188,6 +148,76 @@
 							</div>
 						{/if}
 					</div>
+				{:else if gs.context.id === 'CA_TRANSFER'}
+					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Achievements</h2>
+					<div class="flex flex-col gap-1">
+						{#each gs.honors as honor, index}
+							<CATrAchievementCard
+								{honor}
+								previewMode={gs.previewMode}
+								isSelected={gs.isSelected({ type: 'honor', index })}
+								onclick={() => {
+									if (gs.previewMode) return;
+									gs.selectHonor(index);
+								}}
+								onMoveUp={() => {
+									gs.selectHonor(index);
+									gs.moveItemUp();
+								}}
+								onMoveDown={() => {
+									gs.selectHonor(index);
+									gs.moveItemDown();
+								}}
+								onDelete={() => {
+									gs.selectHonor(index);
+									gs.deleteDialog = true;
+								}}
+							/>
+						{/each}
+						{#if !gs.previewMode}
+							<div class="flex justify-center px-6 py-2 pt-4">
+								<Button variant="outline" class="w-40 rounded-full" onclick={gs.newHonor.bind(gs)}
+									>Add Achievement</Button
+								>
+							</div>
+						{/if}
+					</div>
+
+					<Separator class="mt-4 mb-6 w-[calc(100%-48px)]" />
+
+					<h2 class="px-6 pb-2 text-2xl font-bold text-[#0B6DBD]">Experiences</h2>
+					<div class="flex flex-col gap-1">
+						{#each gs.activities as activity, index}
+							<CATrExperienceCard
+								{activity}
+								previewMode={gs.previewMode}
+								isSelected={gs.isSelected({ type: 'activity', index })}
+								onclick={() => {
+									if (gs.previewMode) return;
+									gs.selectActivity(index);
+								}}
+								onMoveUp={() => {
+									gs.selectActivity(index);
+									gs.moveItemUp();
+								}}
+								onMoveDown={() => {
+									gs.selectActivity(index);
+									gs.moveItemDown();
+								}}
+								onDelete={() => {
+									gs.selectActivity(index);
+									gs.deleteDialog = true;
+								}}
+							/>
+						{/each}
+					</div>
+					{#if !gs.previewMode}
+						<div class="flex justify-center px-6 py-2 pt-4">
+							<Button variant="outline" class="w-40 rounded-full" onclick={gs.newActivity.bind(gs)}
+								>Add Experience</Button
+							>
+						</div>
+					{/if}
 				{:else if gs.context.id === 'UC'}
 					<h2 class="px-6 pb-2 text-2xl font-bold">Activities &amp; Awards</h2>
 					<div class="flex flex-col gap-1">
@@ -198,7 +228,7 @@
 									previewMode={gs.previewMode}
 									compactMode={gs.compactMode}
 									{index}
-									isSelected={gs.isSelected({ type: 'activity', index: index })}
+									isSelected={gs.isSelected({ type: 'activity', index })}
 									onclick={() => {
 										if (gs.previewMode) return;
 										gs.selectActivity(index);
@@ -284,10 +314,16 @@
 						> to edit the list
 					</div>
 				{:else if gs.selection?.type === 'honor'}
-					<CaFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
+					{#if gs.context.id === 'CA_FRESHMAN'}
+						<CAFrHonorForm bind:honor={gs.honors[gs.selection.index]} />
+					{:else if gs.context.id === 'CA_TRANSFER'}
+						<CATrAchievementForm bind:honor={gs.honors[gs.selection.index]} />
+					{/if}
 				{:else if gs.selection?.type === 'activity'}
 					{#if gs.context.id === 'CA_FRESHMAN'}
-						<CaFrActivityForm bind:activity={gs.activities[gs.selection.index]} />
+						<CAFrActivityForm bind:activity={gs.activities[gs.selection.index]} />
+					{:else if gs.context.id === 'CA_TRANSFER'}
+						<CATrExperienceForm bind:activity={gs.activities[gs.selection.index]} />
 					{:else if gs.context.id === 'UC'}
 						<UcActivityForm bind:activity={gs.activities[gs.selection.index]} />
 					{/if}
@@ -375,8 +411,9 @@
 	>
 		<Dialog.Title class="mb-0 text-lg font-semibold">File Exported</Dialog.Title>
 		<Dialog.Description class="mb-6 text-sm text-zinc-600">
-			The exported file is not styled. You may want to style it manually. Do you want to open it
-			now?
+			{#if gs.exportedFilePath.endsWith('.xlsx') || gs.exportedFilePath.endsWith('.xls')}The
+				exported file is not styled. You may want to style it manually.
+			{/if}Do you want to open it now?
 		</Dialog.Description>
 		<div class="mx-auto flex w-[240px] flex-col justify-center gap-4">
 			<Button
